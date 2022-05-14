@@ -1,8 +1,4 @@
-//
-// Created by silverhorse7 on 5/14/22.
-//
 #include <utility>
-
 #include "iostream"
 #include "vector"
 #include "string"
