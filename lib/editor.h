@@ -4,7 +4,8 @@
 #include <ncurses.h>
 #include "../lib/buffer.h"
 
-enum modes{
+enum modes
+{
     QUIT = 0,
     NORMAL = 1,
     INSERT = 2
@@ -19,7 +20,7 @@ private:
     string status, fileName, savedStatus;
     bool savedFlag = false;
     bool markdownFlag = false;
-    
+
     void moveUp();
     void moveDown();
     void moveLeft();
@@ -29,6 +30,9 @@ private:
 public:
     Editor(string);
     int getMode();
+    bool validColumn(int);
+    bool validRow(int);
+    void addSpace(int, int);
     void handleEvent(int);
     void printBuffer();
     void printStatusBar();

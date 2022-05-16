@@ -18,7 +18,7 @@ public:
     void deleteLine(int);
     int getNumOfLines();
 
-    string remTabs(string);
+    string remTabs(string); // substitute tabs with 4 spaces
 };
 
 #endif

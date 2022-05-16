@@ -19,7 +19,7 @@ Editor::Editor(string fileName)
     status = "Normal Mode";
     this->fileName = fileName;
 
-    if(this->fileName.size() > 3 && this->fileName.substr(this->fileName.size()-3) == ".md")
+    if (this->fileName.size() > 3 && this->fileName.substr(this->fileName.size() - 3) == ".md")
         markdownFlag = true;
 
     buffer = new Buffer();
@@ -90,14 +90,16 @@ void Editor::handleEvent(int event)
     case NORMAL:
         switch (event)
         {
-        case 'k':
-            if(row) {
+        case 'j':
+            if (row)
+            {
                 swap(buffer->lines[row], buffer->lines[row - 1]);
                 moveUp();
             }
             break;
-        case 'j':
-            if(row < buffer->lines.size() - 1) {
+        case 'k':
+            if (row < buffer->lines.size() - 1)
+            {
                 swap(buffer->lines[row], buffer->lines[row + 1]);
                 moveDown();
             }
@@ -183,12 +185,16 @@ void Editor::handleEvent(int event)
         case KEY_STAB:
         case KEY_CATAB:
         case TAB:
-            buffer->lines[row].insert(column, 4, ' ');
-            column += 4;
+            for (int i = 0; i < 4; i++)
+            {
+                addSpace(row, column);
+            }
             break;
+        case ' ':
+            addSpace(row, column);
         default:
             buffer->lines[row].insert(column, 1, char(event));
-            column++;
+            moveRight();
             if (markdownFlag && !(column - 1) && (char(event) == '#' || char(event) == '-'))
                 handleEvent((int)' ');
             break;
@@ -197,6 +203,40 @@ void Editor::handleEvent(int event)
     }
 }
 
+bool Editor::validColumn(int column)
+{
+    return (column + 1 < COLS && column < buffer->lines[row].length());
+}
+
+bool Editor::validRow(int row)
+{
+    return (row + 1 < LINES - 1 && row + 1 < buffer->lines.size());
+}
+
+void Editor::addSpace(int row, int column)
+{
+    if (column + 1 < COLS)
+    {
+        buffer->lines[row].insert(column, 1, ' ');
+        moveRight();
+    }
+    else
+    {
+        // if the next row is already valid
+        if (validRow(row + 1))
+        {
+            moveDown();
+            buffer->lines[row].insert(column, 1, ' ');
+        }
+        else
+        {
+            // make new row
+            buffer->appendLine("");
+            moveDown();
+            buffer->lines[row].insert(column, 1, ' ');
+        }
+    }
+}
 void Editor::moveLeft()
 {
     if (column)
@@ -217,14 +257,14 @@ void Editor::moveLeft()
 
 void Editor::moveRight()
 {
-    if (column + 1 < COLS && column < buffer->lines[row].length())
+    if (validColumn(column))
     {
         column++;
         move(row, column);
     }
     else
     {
-        if (row + 1 < LINES - 1 && row + 1 < buffer->lines.size())
+        if (validRow(row))
         {
             row++;
             column = 0;
@@ -247,7 +287,7 @@ void Editor::moveUp()
 
 void Editor::moveDown()
 {
-    if (row + 1 < LINES - 1 && row + 1 < buffer->lines.size())
+    if (validRow(row))
     {
         row++;
         if (column >= buffer->lines[row].length())

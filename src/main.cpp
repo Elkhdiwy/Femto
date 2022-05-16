@@ -1,30 +1,32 @@
 #include <ncurses.h>
-#include "../lib/editor.h"
 #include <string>
 #include <iostream>
+#include "../lib/editor.h"
 
 #define el '\n'
 
 void init()
 {
+    // initialize ncurses
     initscr();
     noecho();
     cbreak();
     keypad(stdscr, true);
     set_escdelay(0);
 
-    if(!has_colors())
-	{	endwin();
-		cerr << "Your terminal does not support color" << el;
-		exit(1);
-	}
-    
+    if (!has_colors())
+    {
+        endwin();
+        cerr << "Your terminal does not support color" << el;
+        exit(1);
+    }
+
     start_color();
     init_pair(1, COLOR_RED, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
 }
 
-void fini()
+void quit()
 {
     refresh();
     endwin();
@@ -32,13 +34,16 @@ void fini()
 
 int main(int argc, char *argv[])
 {
-    string FileName = "";
+    string fileName = "";
 
-    if (argc-1)
-        FileName = string(argv[1]);
+    // if a filename is passed
+    if (argc > 1)
+    {
+        fileName = string(argv[1]);
+    }
 
     int event;
-    Editor EventListener = Editor(FileName);
+    Editor EventListener = Editor(fileName);
 
     init();
 
@@ -51,7 +56,7 @@ int main(int argc, char *argv[])
         EventListener.handleEvent(event);
     }
 
-    fini();
+    quit();
 
     return 0;
 }

@@ -13,7 +13,7 @@ string Buffer::remTabs(string line)
 
 void Buffer::insertLine(string line, int n)
 {
-    line = remTabs(line); 
+    line = remTabs(line);
     lines.insert(lines.begin() + n, line);
 }
 

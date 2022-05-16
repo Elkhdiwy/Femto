@@ -1,4 +1,3 @@
-
 femto: main.o editor.o buffer.o
 	g++ obj/main.o obj/editor.o obj/buffer.o -o femto -lncurses
 main.o: src/main.cpp
