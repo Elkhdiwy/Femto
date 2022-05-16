@@ -90,13 +90,13 @@ void Editor::handleEvent(int event)
     case NORMAL:
         switch (event)
         {
-        case 'j':
+        case 'k':
             if(row) {
                 swap(buffer->lines[row], buffer->lines[row - 1]);
                 moveUp();
             }
             break;
-        case 'k':
+        case 'j':
             if(row < buffer->lines.size() - 1) {
                 swap(buffer->lines[row], buffer->lines[row + 1]);
                 moveDown();
