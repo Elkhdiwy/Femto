@@ -1,13 +1,13 @@
 
 output: main.o editor.o buffer.o
-	g++ main.o editor.o buffer.o -o femto -lncurses
+	g++ obj/main.o obj/editor.o obj/buffer.o -o femto -lncurses
 
-main.o: main.cpp
-	g++ -c main.cpp
-editor.o: editor.cpp editor.h
-	g++ -c editor.cpp
-buffer.o: buffer.cpp
-	g++ -c buffer.cpp
+main.o: src/main.cpp lib/editor.h
+	g++ -c src/main.cpp -o obj/main.o
+editor.o: src/editor.cpp lib/editor.h
+	g++ -c src/editor.cpp -o obj/editor.o
+buffer.o: src/buffer.cpp lib/buffer.h
+	g++ -c src/buffer.cpp -o obj/buffer.o
 
 clean:
-	rm *.o
+	rm obj/*.o
