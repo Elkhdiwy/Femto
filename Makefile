@@ -10,4 +10,7 @@ buffer.o: src/buffer.cpp lib/buffer.h
 	g++ -c src/buffer.cpp -o obj/buffer.o
 
 clean:
-	rm obj/*.o
+	rm obj/*.o femto
+
+ncurses:
+	sudo apt-get install libncurses5-dev libncursesw5-dev
