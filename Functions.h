@@ -5,47 +5,100 @@
 
 using namespace std;
 
-namespace Function {
-    vector<string> load();//O(|changed words|)
+namespace Function
+{
+    vector<string> load(); // O(|changed words|)
     void save(vector<string> text);
 
     vector<string> Text;
 
-    void addLine(const string& text) {
+    void addLine(const string &text)
+    {
         Text.push_back(text);
     }
 
-    void insertLine(const string& text, int location) {
-        Text.insert(Text.begin() + location - 1, text);//O(n) 0(N/2)
+    void insertLine(const string &text, int location)
+    {
+        Text.insert(Text.begin() + location - 1, text); // O(n) 0(N/2)
     }
 
-    void updateLine(string text, int location) {
+    void updateLine(string text, int location)
+    {
         Text[location].erase();
         Text[location] = std::move(text);
     }
 
-    string getLine(int line) {
+    string getLine(int line)
+    {
         return Text[line];
     }
-
-    void deleteLine(int line) {
+    void deleteLine(int line)
+    {
         Text.erase(Text.begin() + line - 1);
     }
-
-    vector<int> findAll(const string& text) // improve request : string automata
+    void buildTable(string &w, vector<int> &t)
     {
-        vector<int> ret;
-        for (int i = 0; i < Text.size(); i++) {
-            if (Text[i].find(text) != -1)
-                ret.push_back(i);
+        t = vector<int>(w.length());
+        int i = 2, j = 0;
+        t[0] = -1;
+        if (w.length() > 1)
+            t[1] = 0;
+
+        while (i < w.length())
+        {
+            if (w[i - 1] == w[j])
+            {
+                t[i] = j + 1;
+                i++;
+                j++;
+            }
+            else if (j > 0)
+                j = t[j];
+            else
+            {
+                t[i] = 0;
+                i++;
+            }
         }
-        // O(number of lines)
-        return ret;
+    }
+    vector<int> KMP(string &s, string &w, vector<int> &t, vector<pair<int, int>> &ans, int &line)
+    {
+        int m = 0, i = 0;
+        while (m + i < s.length())
+        {
+            if (w[i] == s[m + i])
+            {
+                i++;
+                if (i == w.length())
+                    ans.push_back({line, m});
+            }
+            else
+            {
+                m += i - t[i];
+                if (i > 0)
+                    i = t[i];
+            }
+        }
     }
 
-    void Show() {
-        for (const auto& i: Text) {
-            for (auto j: i)
+    vector<pair<int, int>> findAll(string &text) // improve request : string automata
+    {
+        vector<int> ret;
+        buildTable(text, ret);
+        vector<pair<int, int>> ans;
+        for (int i = 0; i < Text.size(); i++)
+        {
+            KMP(Text[i], text, ret, ans, i);
+        }
+        // O(number of lines)
+        return ans;
+    }
+
+    void Show()
+    {
+        for (const auto &i : Text)
+        {
+            for (auto j : i)
                 cout << j;
             cout << endl;
         }
@@ -53,16 +106,10 @@ namespace Function {
 
     void findReplace(string text) // improve request : string automata
     {
-        // automata time complexity : O(number of lines)
-        for (auto &small: Text) {
-            int x = small.find(text);
-            while (x != -1) {
-                int f = 0;
-                for (int j = x; j < x + text.size(); j++)
-                    small[j] = text[f++];
-
-                x = small.find(text);
-            }
+        auto x = findAll(text);
+        for (auto i : x)
+        {
+            Text[i.first].erase(i.second, i.second + text.size());
         }
     }
-};
+}
