@@ -36,9 +36,9 @@ namespace Function
     {
         Text.erase(Text.begin() + line - 1);
     }
-    void buildTable(string &w, vector<int> &t)
+    vector<int> buildTable(string &w)
     {
-        t = vector<int>(w.length());
+        vector<int> t = vector<int>(w.length());
         int i = 2, j = 0;
         t[0] = -1;
         if (w.length() > 1)
@@ -60,17 +60,21 @@ namespace Function
                 i++;
             }
         }
+        return t;
     }
-    vector<int> KMP(string &s, string &w, vector<int> &t, vector<pair<int, int>> &ans, int &line)
+    vector<pair<int, int>> KMP(string &s, string &w, vector<pair<int, int>> &ans, int line)
     {
         int m = 0, i = 0;
+        vector<int> t = buildTable(w);
         while (m + i < s.length())
         {
             if (w[i] == s[m + i])
             {
                 i++;
                 if (i == w.length())
+                {
                     ans.push_back({line, m});
+                }
             }
             else
             {
@@ -79,16 +83,15 @@ namespace Function
                     i = t[i];
             }
         }
+        return ans;
     }
-
     vector<pair<int, int>> findAll(string &text) // improve request : string automata
     {
-        vector<int> ret;
-        buildTable(text, ret);
+        vector<int> ret = buildTable(text);
         vector<pair<int, int>> ans;
         for (int i = 0; i < Text.size(); i++)
         {
-            KMP(Text[i], text, ret, ans, i);
+            KMP(Text[i], text, ans, i);
         }
         // O(number of lines)
         return ans;
@@ -112,4 +115,4 @@ namespace Function
             Text[i.first].erase(i.second, i.second + text.size());
         }
     }
-}
+};
