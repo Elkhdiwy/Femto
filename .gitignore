@@ -7,6 +7,6 @@ femto
 # VSCode Directory
 .vscode
 
-# Output
-untitled*
+# test files
+untitled* *.md
 

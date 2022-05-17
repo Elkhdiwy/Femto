@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         editor.handleEvent(event);
     }
 
-        quit();
+    quit();
 
     return 0;
 }

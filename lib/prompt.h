@@ -19,7 +19,7 @@ void prompt_string(string, string);
 int prompt_yesno(string);
 int center_x(int);
 int center_y(int);
-WINDOW* create_prompt(string, int, int);
-void dest_prompt(WINDOW*);
+WINDOW *create_prompt(string, int, int);
+void dest_prompt(WINDOW *);
 
 #endif
