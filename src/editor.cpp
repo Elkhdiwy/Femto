@@ -203,6 +203,7 @@ void Editor::handleEvent(int event)
         default:
             buffer->lines[row].insert(column, 1, char(event));
             moveRight();
+            selfClosingBrackets((char)(event));
             if (markdownFlag && !(column - 1) && (char(event) == '#' || char(event) == '-'))
                 handleEvent((int)' ');
             break;
@@ -346,6 +347,26 @@ void Editor::printBuffer()
     move(row, column);
 }
 
+void Editor::selfClosingBrackets(char key)
+{
+    switch (key)
+    {
+    case '(':
+        handleEvent((int)')');
+        moveLeft();
+        break;
+    case '[':
+        handleEvent((int)(']'));
+        moveLeft();
+        break;
+    case '{':
+        handleEvent(int('}'));
+        moveLeft();
+        break;
+    default:
+        break;
+    }
+}
 void Editor::printSplashScreen()
 {
     getmaxyx(stdscr, yMax, xMax);

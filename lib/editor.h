@@ -26,6 +26,7 @@ private:
     void moveLeft();
     void moveRight();
     void saveFile();
+    void selfClosingBrackets(char);
 
 public:
     Editor(string);
