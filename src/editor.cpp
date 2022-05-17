@@ -6,9 +6,10 @@
 #include <dirent.h>
 
 #define BACKSPACE 127
-#define ESC 27
+#define SPACE 32
 #define ENTER 10
 #define TAB 9
+#define ESC 27
 #define el '\n'
 
 Editor::Editor(string fileName)
@@ -70,6 +71,12 @@ void Editor::updateStatus()
 
 void Editor::handleEvent(int event)
 {
+    if (isSplashScreen)
+    {
+        isSplashScreen = false;
+        clear();
+        refresh();
+    }
     switch (event)
     {
     case KEY_LEFT:
@@ -180,6 +187,9 @@ void Editor::handleEvent(int event)
             break;
         case KEY_RESIZE:
             break;
+        case SPACE:
+            addSpace(row, column);
+            break;
         case KEY_BTAB:
         case KEY_CTAB:
         case KEY_STAB:
@@ -190,8 +200,6 @@ void Editor::handleEvent(int event)
                 addSpace(row, column);
             }
             break;
-        case ' ':
-            addSpace(row, column);
         default:
             buffer->lines[row].insert(column, 1, char(event));
             moveRight();
@@ -275,7 +283,7 @@ void Editor::moveRight()
 
 void Editor::moveUp()
 {
-    if (row)
+    if (row > 0)
     {
         row--;
         if (column >= buffer->lines[row].length())
@@ -299,6 +307,9 @@ void Editor::moveDown()
 
 void Editor::printBuffer()
 {
+    if (isSplashScreen)
+        return;
+
     for (int i = 0; i < LINES - 1; i++)
     {
         if (i >= buffer->lines.size())
@@ -335,6 +346,13 @@ void Editor::printBuffer()
     move(row, column);
 }
 
+void Editor::printSplashScreen()
+{
+    getmaxyx(stdscr, yMax, xMax);
+    mvprintw(yMax / 2, xMax / 2, "femto v0.1");
+    mvprintw(yMax / 2 + 1, xMax / 2 - 15, "femto is open source and freely distributable");
+    refresh();
+}
 void Editor::printStatusBar()
 {
     attron(A_REVERSE);

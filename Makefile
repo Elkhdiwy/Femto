@@ -7,4 +7,4 @@ editor.o: src/editor.cpp lib/editor.h
 buffer.o: src/buffer.cpp lib/buffer.h
 	g++ -c -Wall -O2 src/buffer.cpp -o obj/buffer.o
 clean:
-	rm obj/*.o femto
+	rm obj/*.o femto untitled*

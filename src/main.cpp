@@ -21,6 +21,7 @@ void init()
         exit(1);
     }
 
+    // colors for syntax highlighting
     start_color();
     init_pair(1, COLOR_RED, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
@@ -43,17 +44,19 @@ int main(int argc, char *argv[])
     }
 
     int event;
-    Editor EventListener = Editor(fileName);
+    Editor editor = Editor(fileName);
 
     init();
 
-    while (EventListener.getMode())
+    while (editor.getMode())
     {
-        EventListener.updateStatus();
-        EventListener.printStatusBar();
-        EventListener.printBuffer();
+        if (editor.isSplashScreen)
+            editor.printSplashScreen();
+        editor.updateStatus();
+        editor.printStatusBar();
+        editor.printBuffer();
         event = getch();
-        EventListener.handleEvent(event);
+        editor.handleEvent(event);
     }
 
     quit();

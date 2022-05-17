@@ -29,6 +29,8 @@ private:
 
 public:
     Editor(string);
+    int yMax, xMax;
+    bool isSplashScreen = true;
     int getMode();
     bool validColumn(int);
     bool validRow(int);
@@ -36,6 +38,7 @@ public:
     void handleEvent(int);
     void printBuffer();
     void printStatusBar();
+    void printSplashScreen();
     void updateStatus();
 };
 
