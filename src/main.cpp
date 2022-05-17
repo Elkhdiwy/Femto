@@ -13,6 +13,7 @@ void init()
     cbreak();
     keypad(stdscr, true);
     set_escdelay(0);
+    curs_set(0);
 
     if (!has_colors())
     {
@@ -44,10 +45,10 @@ int main(int argc, char *argv[])
         fileName = string(argv[1]);
     }
 
+    init();
+
     int event;
     Editor editor = Editor(fileName);
-
-    init();
 
     while (editor.getMode())
     {

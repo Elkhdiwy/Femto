@@ -31,7 +31,6 @@ private:
 
 public:
     Editor(string);
-    int yMax, xMax;
     bool isSplashScreen = true;
     int getMode();
     bool validColumn(int);

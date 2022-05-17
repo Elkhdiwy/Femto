@@ -30,6 +30,9 @@ Editor::Editor(string fileName)
         buffer->appendLine("");
     else
     {
+        isSplashScreen = false;
+        curs_set(1);
+
         ifstream inFile(this->fileName.c_str());
         if (inFile.is_open())
         {
@@ -75,6 +78,7 @@ void Editor::handleEvent(int event)
     if (isSplashScreen)
     {
         isSplashScreen = false;
+        curs_set(1);
         clear();
         refresh();
     }
@@ -379,9 +383,8 @@ void Editor::selfClosingBrackets(char key)
 }
 void Editor::printSplashScreen()
 {
-    getmaxyx(stdscr, yMax, xMax);
-    mvprintw(yMax / 2 - 1, xMax / 2, "femto v0.1");
-    mvprintw(yMax / 2, xMax / 2 - 15, "femto is open source and freely distributable");
+    mvprintw(LINES / 2 - 1, COLS / 2 - 5, "femto v0.1");
+    mvprintw(LINES / 2, COLS / 2 - 22, "femto is open source and freely distributable");
     refresh();
 }
 void Editor::printStatusBar()
