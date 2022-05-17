@@ -330,8 +330,7 @@ void Editor::printBuffer()
     {
         if (i >= buffer->lines.size())
         {
-            move(i, 0);
-            clrtoeol();
+            mvaddch(i, 0, '~');
         }
         else
         {
