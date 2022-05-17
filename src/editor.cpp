@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <dirent.h>
 
+#define LINE_NUMBER_SIZE 3
 #define BACKSPACE 127
 #define SPACE 32
 #define ENTER 10
@@ -306,6 +307,12 @@ void Editor::moveDown()
     }
 }
 
+void Editor::printLineNumber(string lineNumber)
+{
+    attron(COLOR_PAIR(3));
+    mvprintw(stoi(lineNumber) - 1, 0, lineNumber.c_str());
+    attroff(COLOR_PAIR(3));
+}
 void Editor::printBuffer()
 {
     if (isSplashScreen)
@@ -320,31 +327,34 @@ void Editor::printBuffer()
         }
         else
         {
+            printLineNumber(to_string(i + 1));
             if (markdownFlag)
             {
                 if (buffer->lines[i].substr(0, 2) == "# ")
                 {
-                    mvprintw(i, 0, buffer->lines[i].substr(0, 2).c_str());
+                    mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
                     attron(COLOR_PAIR(1));
-                    mvprintw(i, 2, buffer->lines[i].substr(2).c_str());
+                    mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
                     attroff(COLOR_PAIR(1));
                 }
                 else if (buffer->lines[i].substr(0, 2) == "- ")
                 {
-                    mvprintw(i, 0, buffer->lines[i].substr(0, 2).c_str());
+                    mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
                     attron(COLOR_PAIR(2));
-                    mvprintw(i, 2, buffer->lines[i].substr(2).c_str());
+                    mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
                     attroff(COLOR_PAIR(2));
                 }
                 else
-                    mvprintw(i, 0, buffer->lines[i].c_str());
+                    mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].c_str());
             }
             else
-                mvprintw(i, 0, buffer->lines[i].c_str());
+            {
+                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].c_str());
+            }
         }
         clrtoeol();
     }
-    move(row, column);
+    move(row, column + LINE_NUMBER_SIZE);
 }
 
 void Editor::selfClosingBrackets(char key)
@@ -370,8 +380,8 @@ void Editor::selfClosingBrackets(char key)
 void Editor::printSplashScreen()
 {
     getmaxyx(stdscr, yMax, xMax);
-    mvprintw(yMax / 2, xMax / 2, "femto v0.1");
-    mvprintw(yMax / 2 + 1, xMax / 2 - 15, "femto is open source and freely distributable");
+    mvprintw(yMax / 2 - 1, xMax / 2, "femto v0.1");
+    mvprintw(yMax / 2, xMax / 2 - 15, "femto is open source and freely distributable");
     refresh();
 }
 void Editor::printStatusBar()

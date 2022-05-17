@@ -26,6 +26,7 @@ private:
     void moveLeft();
     void moveRight();
     void saveFile();
+    void printLineNumber(string);
     void selfClosingBrackets(char);
 
 public:
