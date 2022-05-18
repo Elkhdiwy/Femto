@@ -58,14 +58,14 @@ void Editor::updateStatus()
     switch (mode)
     {
     case NORMAL:
-        status = " Normal Mode ";
+        status = " Normal Mode";
         break;
     case INSERT:
-        status = " -- INSERT -- ";
+        status = " -- INSERT --";
         savedFlag = false;
         break;
     case QUIT:
-        status = " Exiting ";
+        status = " Exiting";
         break;
     }
 
@@ -212,7 +212,7 @@ void Editor::handleEvent(int event)
             buffer->lines[row].insert(column, 1, char(event));
             moveRight();
             selfClosingBrackets((char)(event));
-            if ((char)event == '-' && buffer->lines[row].size() > column + 1 && !(buffer->lines[row][column] == ' '))
+            if (markdownFlag && (char)event == '-' && buffer->lines[row].size() > column + 1 && !(buffer->lines[row][column] == ' '))
                 handleEvent((int)' ');
             break;
         }
@@ -436,7 +436,7 @@ void Editor::saveFile()
         savedStatus = " Saved as: " + fileName;
     }
     else
-        savedStatus = "Error: Cannot open file for writing!";
+        savedStatus = " Error: Cannot open file for writing!";
 
     outFile.close();
 }
