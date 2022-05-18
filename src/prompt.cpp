@@ -1,19 +1,18 @@
 #include "../lib/prompt.h"
 
-int center_x(int width)
+int centerX(int width)
 {
     return (COLS - width) / 2;
 }
 
-int center_y(int height)
+int centerY(int height)
 {
     return (LINES - height) / 2;
 }
 
-WINDOW *create_prompt(string message, int height, int width)
+WINDOW *initPrompt(string message, int height, int width)
 {
-    WINDOW *prompt = subwin(stdscr, height, width,
-                            center_y(height), center_x(width));
+    WINDOW *prompt = subwin(stdscr, height, width, centerY(height), centerX(width));
     werase(prompt);
     mvwprintw(prompt, 1, 1, message.c_str());
     wmove(prompt, 2, 0);
@@ -23,7 +22,7 @@ WINDOW *create_prompt(string message, int height, int width)
     return prompt;
 }
 
-void dest_prompt(WINDOW *prompt)
+void destPrompt(WINDOW *prompt)
 {
     wborder(prompt, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
     werase(prompt);
@@ -31,22 +30,21 @@ void dest_prompt(WINDOW *prompt)
     delwin(prompt);
 }
 
-void prompt_string(string message, char *name)
+void messagePrompt(string message, char *name, int size)
 {
     echo();
-    WINDOW *prompt = create_prompt(message, PROMPT_STRING_LINES, PROMPT_STRING_COLS);
-
+    WINDOW *prompt = initPrompt(message, PROMPT_STRING_LINES, PROMPT_STRING_COLS);
     wattron(prompt, A_REVERSE);
     wprintw(prompt, "                  ");
     wmove(prompt, PROMPT_OFFY, PROMPT_OFFX);
-    wgetnstr(prompt, name, 100);
+    wgetnstr(prompt, name, size);
     wattroff(prompt, A_REVERSE);
 
-    dest_prompt(prompt);
+    destPrompt(prompt);
     noecho();
 }
 
-int prompt_yesno(string message)
+int boolPrompt(string message)
 {
     int prompt_width = message.length() + 2;
     int yes_x = prompt_width / 2 - 8;
@@ -54,7 +52,7 @@ int prompt_yesno(string message)
     int no_x = prompt_width / 2 + 6;
     int no_y = 3;
 
-    WINDOW *prompt = create_prompt(message, PROMPT_YESNO_LINES, prompt_width);
+    WINDOW *prompt = initPrompt(message, PROMPT_YESNO_LINES, prompt_width);
 
     curs_set(0);
     keypad(prompt, TRUE);
@@ -88,23 +86,23 @@ int prompt_yesno(string message)
         case 'y':
         case 'Y':
             choice = 0;
-            goto end_prompt_yesno;
+            goto end;
             break;
         case 'n':
         case 'N':
             choice = 1;
-            goto end_prompt_yesno;
+            goto end;
             break;
         case '\n':
-            goto end_prompt_yesno;
+            goto end;
             break;
         default:
             break;
         }
     }
 
-end_prompt_yesno:
-    dest_prompt(prompt);
+end:
+    destPrompt(prompt);
     curs_set(1);
     return !choice;
 }

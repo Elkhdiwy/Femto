@@ -12,6 +12,7 @@
 #define ENTER 10
 #define TAB 9
 #define ESC 27
+#define NAME_LIMIT 256
 #define el '\n'
 
 Editor::Editor(string fileName)
@@ -19,7 +20,7 @@ Editor::Editor(string fileName)
     row = 0;
     column = 0;
     mode = NORMAL;
-    status = "Normal Mode";
+    status = " Normal Mode";
     this->fileName = fileName;
 
     if (this->fileName.size() > 3 && this->fileName.substr(this->fileName.size() - 3) == ".md")
@@ -57,21 +58,21 @@ void Editor::updateStatus()
     switch (mode)
     {
     case NORMAL:
-        status = "Normal Mode";
+        status = " Normal Mode ";
         break;
     case INSERT:
-        status = "-- INSERT --";
+        status = " -- INSERT -- ";
         savedFlag = false;
         break;
     case QUIT:
-        status = "Exiting";
+        status = " Exiting ";
         break;
     }
 
     if (savedFlag)
         status = savedStatus;
 
-    status += "\tROW: " + to_string(row) + "\tCOL: " + to_string(column) + "\tNumber of Lines: " + to_string(buffer->getNumOfLines());
+    status += "\tROW: " + to_string(row) + "\tCOL: " + to_string(column) + "\tNumber of Lines: " + to_string(buffer->getNumOfLines()) + ' ';
 }
 
 void Editor::handleEvent(int event)
@@ -120,7 +121,7 @@ void Editor::handleEvent(int event)
         case 'q':
             clear();
             refresh();
-            if (prompt_yesno("Are you sure you want to quit?"))
+            if (boolPrompt("Are you sure you want to quit?"))
                 mode = QUIT;
             break;
         case 'i':
@@ -162,7 +163,7 @@ void Editor::handleEvent(int event)
         case KEY_BACKSPACE:
             if (!column)
             {
-                if (row > 0)
+                if (row)
                 {
                     column = buffer->lines[row - 1].length();
                     buffer->lines[row - 1] += buffer->lines[row];
@@ -205,15 +206,13 @@ void Editor::handleEvent(int event)
         case KEY_CATAB:
         case TAB:
             for (int i = 0; i < 4; i++)
-            {
                 addSpace(row, column);
-            }
             break;
         default:
             buffer->lines[row].insert(column, 1, char(event));
             moveRight();
             selfClosingBrackets((char)(event));
-            if (markdownFlag && !(column - 1) && (char(event) == '#' || char(event) == '-'))
+            if ((char)event == '-' && buffer->lines[row].size() > column + 1 && !(buffer->lines[row][column] == ' '))
                 handleEvent((int)' ');
             break;
         }
@@ -329,35 +328,26 @@ void Editor::printBuffer()
     for (int i = 0; i < LINES - 1; i++)
     {
         if (i >= buffer->lines.size())
-        {
             mvaddch(i, 0, '~');
-        }
         else
         {
             printLineNumber(to_string(i + 1));
-            if (markdownFlag)
+            if (markdownFlag && buffer->lines[i].substr(0, 2) == "# ")
             {
-                if (buffer->lines[i].substr(0, 2) == "# ")
-                {
-                    mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
-                    attron(COLOR_PAIR(1));
-                    mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
-                    attroff(COLOR_PAIR(1));
-                }
-                else if (buffer->lines[i].substr(0, 2) == "- ")
-                {
-                    mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
-                    attron(COLOR_PAIR(2));
-                    mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
-                    attroff(COLOR_PAIR(2));
-                }
-                else
-                    mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].c_str());
+                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
+                attron(COLOR_PAIR(1));
+                mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
+                attroff(COLOR_PAIR(1));
+            }
+            else if (markdownFlag && buffer->lines[i].substr(0, 2) == "- ")
+            {
+                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
+                attron(COLOR_PAIR(2));
+                mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
+                attroff(COLOR_PAIR(2));
             }
             else
-            {
                 mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].c_str());
-            }
         }
         clrtoeol();
     }
@@ -404,6 +394,12 @@ void Editor::printStatusBar()
     attron(A_REVERSE);
     mvprintw(LINES - 1, 0, status.c_str());
     clrtoeol();
+    if (getMode() == NORMAL)
+        mvprintw(LINES - 1, COLS - 21, " PRESS Q TO QUIT ");
+    else
+        mvprintw(LINES - 1, COLS - 23, " PRESS ESC TO QUIT ");
+
+    clrtoeol();
     attroff(A_REVERSE);
 }
 
@@ -435,15 +431,13 @@ void Editor::saveFile()
     if (outFile.is_open())
     {
         for (int i = 0; i < buffer->lines.size(); i++)
-        {
             outFile << buffer->lines[i] << endl;
-        }
-        savedStatus = "File saved!";
+
+        savedStatus = " Saved as: " + fileName;
     }
     else
-    {
         savedStatus = "Error: Cannot open file for writing!";
-    }
+
     outFile.close();
 }
 
