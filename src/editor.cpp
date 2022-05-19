@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <dirent.h>
 
-#define LINE_NUMBER_SIZE 3
 #define BACKSPACE 127
 #define SPACE 32
 #define ENTER 10
@@ -20,6 +19,7 @@ Editor::Editor(string fileName)
     row = 0;
     column = 0;
     startIndex = 0;
+    LINE_NUMBER_SIZE = 3;
     mode = NORMAL;
     status = " Normal Mode";
     this->fileName = fileName;
@@ -74,6 +74,14 @@ void Editor::updateStatus()
         status = savedStatus;
 
     status += "\tROW: " + to_string(row + 1) + "\tCOL: " + to_string(column + 1) + "\tNumber of Lines: " + to_string(buffer->getNumOfLines()) + ' ';
+}
+
+int Editor::getMax(int a, int b)
+{
+    if (a < b)
+        return b;
+
+    return a;
 }
 
 void Editor::handleEvent(int event)
@@ -151,6 +159,16 @@ void Editor::handleEvent(int event)
                 buffer->lines[row].erase(buffer->lines[row].begin() + column);
                 savedFlag = false;
             }
+            break;
+        case KEY_HOME:
+            row = 0;
+            column = 0;
+            startIndex = 0;
+            break;
+        case KEY_END:
+            row = buffer->getNumOfLines() - 1;
+            column = getMax(0, buffer->lines[row].size());
+            startIndex = row - LINES + 2;
             break;
         }
         break;
@@ -293,7 +311,7 @@ void Editor::moveRight()
 
 void Editor::moveUp()
 {
-    if (row > 0)
+    if (row)
     {
         row--;
 
@@ -333,6 +351,8 @@ void Editor::printBuffer()
 {
     if (isSplashScreen)
         return;
+
+    LINE_NUMBER_SIZE = to_string(buffer->getNumOfLines()).size() + 2;
 
     for (int i = 0; i < LINES - 1; i++)
     {
@@ -386,16 +406,18 @@ void Editor::selfClosingBrackets(char key)
 void Editor::printSplashScreen()
 {
     attron(A_BOLD);
-    mvprintw(LINES / 2 - 5, COLS / 2 - 5, "femto v0.1");
+    mvprintw(LINES / 2 - 6, COLS / 2 - 5, "femto v0.1");
     attroff(A_BOLD);
-    mvprintw(LINES / 2 - 4, COLS / 2 - 22, "femto is open source and freely distributable");
-    mvprintw(LINES / 2 - 2, COLS / 2 - 7, "i: Insert Mode");
-    mvprintw(LINES / 2 - 1, COLS / 2 - 3, "q: Quit");
-    mvprintw(LINES / 2, COLS / 2 - 3, "s: Save");
-    mvprintw(LINES / 2 + 1, COLS / 2 - 9, "x: Delete Character");
-    mvprintw(LINES / 2 + 2, COLS / 2 - 7, "d: Delete Line");
-    mvprintw(LINES / 2 + 3, COLS / 2 - 11, "j: Swap Lines Downwards");
-    mvprintw(LINES / 2 + 4, COLS / 2 - 10, "k: Swap Lines Upwards");
+    mvprintw(LINES / 2 - 5, COLS / 2 - 22, "femto is open source and freely distributable");
+    mvprintw(LINES / 2 - 3, COLS / 2 - 7, "i: Insert Mode");
+    mvprintw(LINES / 2 - 2, COLS / 2 - 3, "q: Quit");
+    mvprintw(LINES / 2 - 1, COLS / 2 - 3, "s: Save");
+    mvprintw(LINES / 2, COLS / 2 - 9, "x: Delete Character");
+    mvprintw(LINES / 2 + 1, COLS / 2 - 7, "d: Delete Line");
+    mvprintw(LINES / 2 + 2, COLS / 2 - 11, "j: Swap Lines Downwards");
+    mvprintw(LINES / 2 + 3, COLS / 2 - 10, "k: Swap Lines Upwards");
+    mvprintw(LINES / 2 + 4, COLS / 2 - 10, "Home: Go to the start");
+    mvprintw(LINES / 2 + 5, COLS / 2 - 9, "End: Go to the end");
     refresh();
 }
 void Editor::printStatusBar()

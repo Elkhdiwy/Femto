@@ -14,7 +14,7 @@ enum modes
 class Editor
 {
 private:
-    int row, column, startIndex;
+    int row, column, startIndex, LINE_NUMBER_SIZE;
     Buffer *buffer;
     modes mode;
     string status, fileName, savedStatus;
@@ -28,6 +28,7 @@ private:
     void saveFile();
     void printLineNumber(string);
     void selfClosingBrackets(char);
+    int getMax(int, int);
 
 public:
     Editor(string);
