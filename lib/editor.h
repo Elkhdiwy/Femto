@@ -36,7 +36,6 @@ public:
     int getMode();
     bool validColumn(int);
     bool validRow(int);
-    void addSpace(int, int);
     void handleEvent(int);
     void printBuffer();
     void printStatusBar();

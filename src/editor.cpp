@@ -216,18 +216,17 @@ void Editor::handleEvent(int event)
             break;
         case KEY_RESIZE:
             break;
-        case SPACE:
-            addSpace(row, column);
-            break;
         case KEY_BTAB:
         case KEY_CTAB:
         case KEY_STAB:
         case KEY_CATAB:
         case TAB:
             for (int i = 0; i < 4; i++)
-                addSpace(row, column);
+                handleEvent((int)' ');
             break;
         default:
+            if(column == COLS - LINE_NUMBER_SIZE)
+                handleEvent(ENTER);
             buffer->lines[row].insert(column, 1, char(event));
             moveRight();
             selfClosingBrackets((char)(event));
@@ -249,30 +248,6 @@ bool Editor::validRow(int row)
     return (row + 1 < buffer->lines.size());
 }
 
-void Editor::addSpace(int row, int column)
-{
-    if (column + 1 < COLS)
-    {
-        buffer->lines[row].insert(column, 1, ' ');
-        moveRight();
-    }
-    else
-    {
-        // if the next row is already valid
-        if (validRow(row + 1))
-        {
-            moveDown();
-            buffer->lines[row].insert(column, 1, ' ');
-        }
-        else
-        {
-            // make new row
-            buffer->appendLine("");
-            moveDown();
-            buffer->lines[row].insert(column, 1, ' ');
-        }
-    }
-}
 void Editor::moveLeft()
 {
     if (column)
