@@ -14,7 +14,7 @@ enum modes
 class Editor
 {
 private:
-    int row, column;
+    int row, column, startIndex;
     Buffer *buffer;
     modes mode;
     string status, fileName, savedStatus;

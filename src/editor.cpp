@@ -19,6 +19,7 @@ Editor::Editor(string fileName)
 {
     row = 0;
     column = 0;
+    startIndex = 0;
     mode = NORMAL;
     status = " Normal Mode";
     this->fileName = fileName;
@@ -72,7 +73,7 @@ void Editor::updateStatus()
     if (savedFlag)
         status = savedStatus;
 
-    status += "\tROW: " + to_string(row) + "\tCOL: " + to_string(column) + "\tNumber of Lines: " + to_string(buffer->getNumOfLines()) + ' ';
+    status += "\tROW: " + to_string(row + 1) + "\tCOL: " + to_string(column + 1) + "\tNumber of Lines: " + to_string(buffer->getNumOfLines()) + ' ';
 }
 
 void Editor::handleEvent(int event)
@@ -227,7 +228,7 @@ bool Editor::validColumn(int column)
 
 bool Editor::validRow(int row)
 {
-    return (row + 1 < LINES - 1 && row + 1 < buffer->lines.size());
+    return (row + 1 < buffer->lines.size());
 }
 
 void Editor::addSpace(int row, int column)
@@ -295,6 +296,10 @@ void Editor::moveUp()
     if (row > 0)
     {
         row--;
+
+        if (row < startIndex)
+            startIndex = row;
+
         if (column >= buffer->lines[row].length())
             column = buffer->lines[row].length();
 
@@ -307,6 +312,9 @@ void Editor::moveDown()
     if (validRow(row))
     {
         row++;
+        if (row == startIndex + LINES - 1)
+            startIndex++;
+
         if (column >= buffer->lines[row].length())
             column = buffer->lines[row].length();
 
@@ -317,7 +325,8 @@ void Editor::moveDown()
 void Editor::printLineNumber(string lineNumber)
 {
     attron(COLOR_PAIR(3));
-    mvprintw(stoi(lineNumber) - 1, 0, lineNumber.c_str());
+    mvprintw(stoi(lineNumber) - startIndex - 1, 0, lineNumber.c_str());
+    clrtoeol();
     attroff(COLOR_PAIR(3));
 }
 void Editor::printBuffer()
@@ -327,31 +336,31 @@ void Editor::printBuffer()
 
     for (int i = 0; i < LINES - 1; i++)
     {
-        if (i >= buffer->lines.size())
+        if (i + startIndex >= buffer->lines.size())
             mvaddch(i, 0, '~');
         else
         {
-            printLineNumber(to_string(i + 1));
-            if (markdownFlag && buffer->lines[i].substr(0, 2) == "# ")
+            printLineNumber(to_string((i + startIndex + 1)));
+            if (markdownFlag && buffer->lines[i + startIndex].substr(0, 2) == "# ")
             {
-                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
+                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i + startIndex].substr(0, 2).c_str());
                 attron(COLOR_PAIR(1));
-                mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
+                mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i + startIndex].substr(2).c_str());
                 attroff(COLOR_PAIR(1));
             }
-            else if (markdownFlag && buffer->lines[i].substr(0, 2) == "- ")
+            else if (markdownFlag && buffer->lines[i + startIndex].substr(0, 2) == "- ")
             {
-                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].substr(0, 2).c_str());
+                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i + startIndex].substr(0, 2).c_str());
                 attron(COLOR_PAIR(2));
-                mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i].substr(2).c_str());
+                mvprintw(i, LINE_NUMBER_SIZE + 2, buffer->lines[i + startIndex].substr(2).c_str());
                 attroff(COLOR_PAIR(2));
             }
             else
-                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i].c_str());
+                mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i + startIndex].c_str());
         }
         clrtoeol();
     }
-    move(row, column + LINE_NUMBER_SIZE);
+    move(row - startIndex, column + LINE_NUMBER_SIZE);
 }
 
 void Editor::selfClosingBrackets(char key)
