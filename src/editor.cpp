@@ -412,11 +412,12 @@ void Editor::selfClosingBrackets(char key)
 void Editor::printSplashScreen()
 {
     attron(A_BOLD);
-    mvprintw(LINES / 2 - 6, COLS / 2 - 5, "femto v0.1");
+    mvprintw(LINES / 2 - 7, COLS / 2 - 5, "femto v0.1");
     attroff(A_BOLD);
-    mvprintw(LINES / 2 - 5, COLS / 2 - 22, "femto is open source and freely distributable");
-    mvprintw(LINES / 2 - 3, COLS / 2 - 7, "i: Insert Mode");
-    mvprintw(LINES / 2 - 2, COLS / 2 - 3, "q: Quit");
+    mvprintw(LINES / 2 - 6, COLS / 2 - 22, "femto is open source and freely distributable");
+    mvprintw(LINES / 2 - 4, COLS / 2 - 7, "i: Insert Mode");
+    mvprintw(LINES / 2 - 3, COLS / 2 - 3, "q: Quit");
+    mvprintw(LINES / 2 - 2, COLS / 2 - 3, "u: Undo");
     mvprintw(LINES / 2 - 1, COLS / 2 - 3, "s: Save");
     mvprintw(LINES / 2, COLS / 2 - 9, "x: Delete Character");
     mvprintw(LINES / 2 + 1, COLS / 2 - 7, "d: Delete Line");
