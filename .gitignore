@@ -9,5 +9,6 @@ femto
 
 # test files
 untitled*
+*.md
 *.txt
 
