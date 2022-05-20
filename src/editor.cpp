@@ -256,7 +256,7 @@ void Editor::handleEvent(int event)
             break;
         default:
             updateHistory();
-            if(column == COLS - LINE_NUMBER_SIZE)
+            if(column == COLS - LINE_NUMBER_SIZE - 1)
                 handleEvent(ENTER);
             buffer->lines[row].insert(column, 1, char(event));
             moveRight();
