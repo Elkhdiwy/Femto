@@ -2,6 +2,7 @@
 #define EDITOR_H
 
 #include <ncurses.h>
+#include <stack>
 #include "../lib/buffer.h"
 
 enum modes
@@ -20,6 +21,8 @@ private:
     string status, fileName, savedStatus;
     bool savedFlag = false;
     bool markdownFlag = false;
+    stack <vector<string>> history;
+    stack<pair<int,int>>cursorHistory;
 
     void moveUp();
     void moveDown();
@@ -29,6 +32,8 @@ private:
     void printLineNumber(string);
     void selfClosingBrackets(char);
     int getMax(int, int);
+    void undo();
+    void updateHistory();
 
 public:
     Editor(string);

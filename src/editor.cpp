@@ -51,7 +51,24 @@ Editor::Editor(string fileName)
             cerr << "Cannot open file: '" << this->fileName << "'" << el;
             buffer->appendLine("");
         }
+    }    
+}
+
+void Editor::undo()
+{
+    if(!history.empty()) {
+        buffer->lines = history.top();
+        history.pop();
+        row = cursorHistory.top().first;
+        column = cursorHistory.top().second;
+        cursorHistory.pop();
     }
+}
+
+void Editor::updateHistory()
+{
+    history.push(buffer->lines);
+    cursorHistory.push(make_pair(row, column));
 }
 
 void Editor::updateStatus()
@@ -116,6 +133,7 @@ void Editor::handleEvent(int event)
         case 'k':
             if (row)
             {
+                updateHistory();
                 swap(buffer->lines[row], buffer->lines[row - 1]);
                 moveUp();
             }
@@ -123,6 +141,7 @@ void Editor::handleEvent(int event)
         case 'j':
             if (row < buffer->lines.size() - 1)
             {
+                updateHistory();
                 swap(buffer->lines[row], buffer->lines[row + 1]);
                 moveDown();
             }
@@ -141,6 +160,7 @@ void Editor::handleEvent(int event)
             savedFlag = true;
             break;
         case 'd':
+            updateHistory();
             if (row)
             {
                 buffer->deleteLine(row);
@@ -156,6 +176,7 @@ void Editor::handleEvent(int event)
         case 'x':
             if (buffer->lines[row].size() > column)
             {
+                updateHistory();
                 buffer->lines[row].erase(buffer->lines[row].begin() + column);
                 savedFlag = false;
             }
@@ -170,6 +191,9 @@ void Editor::handleEvent(int event)
             column = getMax(0, buffer->lines[row].size());
             startIndex = row - LINES + 2;
             break;
+        case 'u':
+            undo();
+            break;
         }
         break;
     case INSERT:
@@ -180,6 +204,7 @@ void Editor::handleEvent(int event)
             break;
         case BACKSPACE:
         case KEY_BACKSPACE:
+            updateHistory();
             if (!column)
             {
                 if (row)
@@ -192,18 +217,23 @@ void Editor::handleEvent(int event)
             }
             else
                 buffer->lines[row].erase(--column, 1);
+
             break;
         case KEY_DC:
+            updateHistory();
             if (column == buffer->lines[row].length() && !(row == buffer->lines.size() - 1))
             {
                 buffer->lines[row] += buffer->lines[row + 1];
                 buffer->deleteLine(row + 1);
             }
             else
+            {
                 buffer->lines[row].erase(column, 1);
+            }
             break;
         case KEY_ENTER:
         case ENTER:
+            updateHistory();
             if (column < buffer->lines[row].length())
             {
                 buffer->insertLine(buffer->lines[row].substr(column, buffer->lines[row].length() - column), row + 1);
@@ -225,6 +255,7 @@ void Editor::handleEvent(int event)
                 handleEvent((int)' ');
             break;
         default:
+            updateHistory();
             if(column == COLS - LINE_NUMBER_SIZE)
                 handleEvent(ENTER);
             buffer->lines[row].insert(column, 1, char(event));
