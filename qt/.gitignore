@@ -1,8 +1,5 @@
 # Compiled Object files
-main.o
-mainwindow.o
-moc_mainwindow.o
-qrc_Icons.o
+*.o
 
 # Compiled Headers
 moc_predefs.h

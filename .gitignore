@@ -8,7 +8,6 @@ femto
 .vscode
 
 # test files
-untitled* 
-*.md
+untitled*
 *.txt
 
