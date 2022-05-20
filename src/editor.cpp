@@ -22,6 +22,8 @@ Editor::Editor(string fileName)
     savedFlag = false;
     markdownFlag = false;
     visualModeFlag = false;
+    isSplashScreen = true;
+    Flag = false;
     LINE_NUMBER_SIZE = 3;
     mode = NORMAL;
     visualString = "";
@@ -94,6 +96,7 @@ void Editor::updateStatus()
         break;
     case VISUAL:
         status = " ** VISUAL **";
+        savedFlag = false;
         break;
     }
 
@@ -149,9 +152,22 @@ void Editor::handleEvent(int event)
         case ESC:
             mode = NORMAL;
             visualModeFlag = false;
+            Flag = false;
+            visualString.erase();
+            break;
+        case 'x':
+            updateHistory();
+            if (lastKey == KEY_LEFT)
+                buffer->lines[row].erase(buffer->lines[row].begin() + column + 1, buffer->lines[row].begin() + column + 1 + visualString.size());
+            else
+            {
+                buffer->lines[row].erase(buffer->lines[row].begin() + column - visualString.size(), buffer->lines[row].begin() + column);
+                column -= visualString.size();
+            }
             visualString.erase();
             break;
         }
+        break;
     case NORMAL:
         switch (event)
         {
@@ -206,7 +222,7 @@ void Editor::handleEvent(int event)
             if (buffer->lines[row].size() > column)
             {
                 updateHistory();
-                buffer->lines[row].erase(buffer->lines[row].begin() + column);
+                buffer->lines[row].erase(buffer->lines[row].begin() + column, buffer->lines[row].begin() + column);
                 savedFlag = false;
             }
             break;
@@ -312,12 +328,37 @@ void Editor::moveLeft()
 {
     if (column)
     {
-
-        if (visualModeFlag)
+        if (validColumn(column))
+            handleVisual(KEY_LEFT);
+        column--;
+        move(row, column);
+    }
+    else
+    {
+        if (!Flag && !visualString.empty())
         {
-            if (visualString.empty())
-                lastKey = KEY_LEFT;
+            Flag = true;
+            handleVisual(KEY_LEFT);
+        }
 
+        if (visualString.empty() && row)
+        {
+            row--;
+            column = buffer->lines[row].length();
+            move(row, column);
+        }
+    }
+}
+
+void Editor::handleVisual(int event)
+{
+    if (visualModeFlag)
+    {
+        if (visualString.empty())
+            lastKey = event;
+
+        if (event == KEY_LEFT)
+        {
             if (lastKey == KEY_LEFT)
                 visualString.insert(0, 1, buffer->lines[row][column]);
             else
@@ -326,17 +367,21 @@ void Editor::moveLeft()
                     visualString.pop_back();
             }
         }
-
-        column--;
-        move(row, column);
-    }
-    else
-    {
-        if (row)
+        else
         {
-            row--;
-            column = buffer->lines[row].length();
-            move(row, column);
+            if (lastKey == KEY_RIGHT)
+                visualString.append(1, buffer->lines[row][column]);
+            else
+            {
+                if (!visualString.empty())
+                    visualString.erase(visualString.begin());
+            }
+
+            if (Flag)
+            {
+                Flag = false;
+                column--;
+            }
         }
     }
 }
@@ -346,26 +391,13 @@ void Editor::moveRight()
 
     if (validColumn(column))
     {
-        if (visualModeFlag)
-        {
-            if (visualString.empty())
-                lastKey = KEY_RIGHT;
-
-            if (lastKey == KEY_RIGHT)
-                visualString.append(1, buffer->lines[row][column]);
-            else
-            {
-                if (!visualString.empty())
-                    visualString.erase(visualString.begin());
-            }
-        }
-
+        handleVisual(KEY_RIGHT);
         column++;
         move(row, column);
     }
     else
     {
-        if (validRow(row))
+        if (visualString.empty() && validRow(row))
         {
             row++;
             column = 0;
@@ -376,6 +408,9 @@ void Editor::moveRight()
 
 void Editor::moveUp()
 {
+    if (visualModeFlag && !visualString.empty())
+        return;
+
     if (row)
     {
         row--;
@@ -392,6 +427,9 @@ void Editor::moveUp()
 
 void Editor::moveDown()
 {
+    if (visualModeFlag && !visualString.empty())
+        return;
+
     if (validRow(row))
     {
         row++;
@@ -547,11 +585,15 @@ void Editor::printVisual()
 {
     attron(A_REVERSE);
     if (lastKey == KEY_RIGHT)
-        mvprintw(row, column - visualString.size() + LINE_NUMBER_SIZE, visualString.c_str());
+        move(row, column - visualString.size() + LINE_NUMBER_SIZE);
     else
     {
-        mvprintw(row, column + LINE_NUMBER_SIZE + 1, visualString.c_str());
-        move(row, column + LINE_NUMBER_SIZE);
+        if (Flag)
+            move(row, column + LINE_NUMBER_SIZE);
+        else
+            move(row, column + LINE_NUMBER_SIZE + 1);
     }
+    printw(visualString.c_str());
+    move(row, column + LINE_NUMBER_SIZE);
     attroff(A_REVERSE);
 }

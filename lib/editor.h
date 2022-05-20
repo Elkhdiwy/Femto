@@ -20,7 +20,7 @@ private:
     Buffer *buffer;
     modes mode;
     string status, fileName, savedStatus, visualString;
-    bool savedFlag, markdownFlag, visualModeFlag;
+    bool savedFlag, markdownFlag, visualModeFlag, Flag;
     stack <vector<string>> history;
     stack<pair<int,int>>cursorHistory;
 
@@ -31,16 +31,17 @@ private:
     void saveFile();
     void printLineNumber(string);
     void selfClosingBrackets(char);
-    int getMax(int, int);
     void undo();
     void updateHistory();
+    void handleVisual(int);
+    int getMax(int, int);
+    bool validColumn(int);
+    bool validRow(int);
 
 public:
     Editor(string);
-    bool isSplashScreen = true;
+    bool isSplashScreen;
     int getMode();
-    bool validColumn(int);
-    bool validRow(int);
     void handleEvent(int);
     void printBuffer();
     void printStatusBar();
