@@ -32,8 +32,3 @@ void Buffer::removeLine(int n)
 {
     lines.erase(lines.begin() + n);
 }
-
-int Buffer::getNumOfLines()
-{
-    return lines.size();
-}

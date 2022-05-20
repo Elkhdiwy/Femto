@@ -10,5 +10,3 @@ prompt.o: src/prompt.cpp lib/prompt.h
 	g++ -c -Wall -O2 src/prompt.cpp -o obj/prompt.o
 clean:
 	rm obj/*.o femto untitled*
-qt:
-	

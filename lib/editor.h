@@ -19,10 +19,12 @@ private:
     int row, column, startIndex, LINE_NUMBER_SIZE, lastKey;
     Buffer *buffer;
     modes mode;
-    string status, fileName, savedStatus, visualString;
+    string status, fileName, savedStatus, visualString, copiedString;
     bool savedFlag, markdownFlag, visualModeFlag, edgeCaseFlag;
-    stack <vector<string>> history;
-    stack<pair<int,int>>cursorHistory;
+    stack<vector<string>> history;
+    stack<vector<string>> redoHistory;
+    stack<pair<int, int>> cursorHistory;
+    stack<pair<int, int>> redoCursorHistory;
 
     void moveUp();
     void moveDown();
@@ -32,9 +34,11 @@ private:
     void printLineNumber(string);
     void selfClosingBrackets(char);
     void undo();
+    void redo();
     void updateHistory();
     void handleVisual(int);
     int getMax(int, int);
+    int getMin(int, int);
     bool validColumn(int);
     bool validRow(int);
 

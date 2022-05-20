@@ -66,6 +66,8 @@ void Editor::undo()
 {
     if (!history.empty())
     {
+        redoHistory.push(buffer->lines);
+        redoCursorHistory.push(make_pair(row, column));
         buffer->lines = history.top();
         history.pop();
         row = cursorHistory.top().first;
@@ -77,7 +79,23 @@ void Editor::undo()
 void Editor::updateHistory()
 {
     history.push(buffer->lines);
+    redoHistory = stack<vector<string>>();
     cursorHistory.push(make_pair(row, column));
+    redoCursorHistory = stack<pair<int, int>>();
+}
+
+void Editor::redo()
+{
+    if (!redoHistory.empty())
+    {
+        history.push(buffer->lines);
+        cursorHistory.push(make_pair(row, column));
+        buffer->lines = redoHistory.top();
+        redoHistory.pop();
+        row = redoCursorHistory.top().first;
+        column = redoCursorHistory.top().second;
+        redoCursorHistory.pop();
+    }
 }
 
 void Editor::updateStatus()
@@ -108,7 +126,7 @@ void Editor::updateStatus()
     if (visualModeFlag)
         status += "\t Number of highlighted chars: " + to_string(visualString.size()) + ' ';
     else
-        status += "\tNumber of Lines: " + to_string(buffer->getNumOfLines()) + ' ';
+        status += "\tNumber of Lines: " + to_string(buffer->lines.size()) + ' ';
 }
 
 int Editor::getMax(int a, int b)
@@ -117,6 +135,14 @@ int Editor::getMax(int a, int b)
         return b;
 
     return a;
+}
+
+int Editor::getMin(int a, int b)
+{
+    if (a < b)
+        return a;
+
+    return b;
 }
 
 void Editor::handleEvent(int event)
@@ -130,7 +156,6 @@ void Editor::handleEvent(int event)
     }
     switch (event)
     {
-
     case KEY_LEFT:
         moveLeft();
         return;
@@ -164,13 +189,29 @@ void Editor::handleEvent(int event)
                 buffer->lines[row].erase(buffer->lines[row].begin() + column - visualString.size(), buffer->lines[row].begin() + column);
                 column -= visualString.size();
             }
+            copiedString = visualString;
             visualString.erase();
+            break;
+        case 'y':
+            copiedString = visualString;
+            visualString.erase();
+            break;
+        case 'u':
+            undo();
+            break;
+        case 'r':
+            redo();
             break;
         }
         break;
     case NORMAL:
         switch (event)
         {
+        case 'p':
+            updateHistory();
+            buffer->lines[row].insert(column, copiedString);
+            column += copiedString.size();
+            break;
         case 'v':
             mode = VISUAL;
             visualModeFlag = true;
@@ -206,16 +247,11 @@ void Editor::handleEvent(int event)
             break;
         case 'd':
             updateHistory();
-            if (row)
-            {
-                buffer->deleteLine(row);
-                moveUp();
-            }
-            else
-            {
-                column = 0;
-                buffer->lines[row].erase();
-            }
+            buffer->deleteLine(row);
+            if (buffer->lines.empty())
+                buffer->appendLine("");
+            row = getMin(buffer->lines.size() - 1, row);
+            column = getMin(buffer->lines[row].length(), column);
             savedFlag = false;
             break;
         case 'x':
@@ -232,12 +268,29 @@ void Editor::handleEvent(int event)
             startIndex = 0;
             break;
         case KEY_END:
-            row = buffer->getNumOfLines() - 1;
+            row = buffer->lines.size() - 1;
             column = getMax(0, buffer->lines[row].size());
             startIndex = row - LINES + 2;
             break;
+        case KEY_PPAGE:
+            if (!startIndex)
+                column = 0;
+            startIndex = getMax(0, startIndex - LINES + 1);
+            row = getMax(0, row - LINES + 1);
+            column = getMin(buffer->lines[row].length(), column);
+            break;
+        case KEY_NPAGE:
+            if(row == buffer->lines.size() - 1)
+                column = buffer->lines[row].length();
+            startIndex = getMin(buffer->lines.size() - LINES + 1, startIndex + LINES - 1);
+            row = getMin(buffer->lines.size() - 1, row + LINES - 1);
+            column = getMin(buffer->lines[row].length(), column);
+            break;
         case 'u':
             undo();
+            break;
+        case 'r':
+            redo();
             break;
         }
         break;
@@ -455,7 +508,7 @@ void Editor::printBuffer()
     if (isSplashScreen)
         return;
 
-    LINE_NUMBER_SIZE = to_string(buffer->getNumOfLines()).size() + 2;
+    LINE_NUMBER_SIZE = to_string(buffer->lines.size()).size() + 2;
 
     for (int i = 0; i < LINES - 1; i++)
     {
