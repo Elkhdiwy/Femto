@@ -9,18 +9,18 @@ enum modes
 {
     QUIT = 0,
     NORMAL = 1,
-    INSERT = 2
+    INSERT = 2,
+    VISUAL = 3
 };
 
 class Editor
 {
 private:
-    int row, column, startIndex, LINE_NUMBER_SIZE;
+    int row, column, startIndex, LINE_NUMBER_SIZE, lastKey;
     Buffer *buffer;
     modes mode;
-    string status, fileName, savedStatus;
-    bool savedFlag = false;
-    bool markdownFlag = false;
+    string status, fileName, savedStatus, visualString;
+    bool savedFlag, markdownFlag, visualModeFlag;
     stack <vector<string>> history;
     stack<pair<int,int>>cursorHistory;
 
@@ -46,6 +46,7 @@ public:
     void printStatusBar();
     void printSplashScreen();
     void updateStatus();
+    void printVisual();
 };
 
 #endif

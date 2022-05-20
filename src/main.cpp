@@ -57,6 +57,8 @@ int main(int argc, char *argv[])
         editor.updateStatus();
         editor.printStatusBar();
         editor.printBuffer();
+        if(editor.getMode() == VISUAL)
+            editor.printVisual();
         event = getch();
         editor.handleEvent(event);
     }
