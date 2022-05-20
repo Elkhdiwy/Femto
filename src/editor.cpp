@@ -23,7 +23,7 @@ Editor::Editor(string fileName)
     markdownFlag = false;
     visualModeFlag = false;
     isSplashScreen = true;
-    Flag = false;
+    edgeCaseFlag = false;
     LINE_NUMBER_SIZE = 3;
     mode = NORMAL;
     visualString = "";
@@ -152,7 +152,7 @@ void Editor::handleEvent(int event)
         case ESC:
             mode = NORMAL;
             visualModeFlag = false;
-            Flag = false;
+            edgeCaseFlag = false;
             visualString.erase();
             break;
         case 'x':
@@ -328,16 +328,16 @@ void Editor::moveLeft()
 {
     if (column)
     {
-        if (validColumn(column))
+        if (!visualString.empty() || validColumn(column))
             handleVisual(KEY_LEFT);
         column--;
         move(row, column);
     }
     else
     {
-        if (!Flag && !visualString.empty())
+        if (!edgeCaseFlag && !visualString.empty())
         {
-            Flag = true;
+            edgeCaseFlag = true;
             handleVisual(KEY_LEFT);
         }
 
@@ -377,9 +377,9 @@ void Editor::handleVisual(int event)
                     visualString.erase(visualString.begin());
             }
 
-            if (Flag)
+            if (edgeCaseFlag)
             {
-                Flag = false;
+                edgeCaseFlag = false;
                 column--;
             }
         }
@@ -588,7 +588,7 @@ void Editor::printVisual()
         move(row, column - visualString.size() + LINE_NUMBER_SIZE);
     else
     {
-        if (Flag)
+        if (edgeCaseFlag)
             move(row, column + LINE_NUMBER_SIZE);
         else
             move(row, column + LINE_NUMBER_SIZE + 1);

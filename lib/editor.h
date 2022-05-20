@@ -20,7 +20,7 @@ private:
     Buffer *buffer;
     modes mode;
     string status, fileName, savedStatus, visualString;
-    bool savedFlag, markdownFlag, visualModeFlag, Flag;
+    bool savedFlag, markdownFlag, visualModeFlag, edgeCaseFlag;
     stack <vector<string>> history;
     stack<pair<int,int>>cursorHistory;
 
