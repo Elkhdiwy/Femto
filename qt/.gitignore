@@ -6,6 +6,7 @@ moc_predefs.h
 
 # Executables
 femto-QT
+Makefile
 
 # Compiled cpp files
 moc_mainwindow.cpp
