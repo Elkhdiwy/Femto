@@ -61,7 +61,7 @@ void MainWindow::createConnections()
     connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOutSlot);
     connect(darkModeAction, &QAction::triggered, this, &MainWindow::darkModeSlot);
     connect(lightModeAction, &QAction::triggered, this, &MainWindow::lightModeSlot);
-
+    connect(fontColor, &QAction::triggered, this, &MainWindow::fontColorSlot);
 
     // Format signals & slots
     connect(rightAlignment, &QAction::triggered, this,  [this]{alignment(1);  });
@@ -181,8 +181,14 @@ void MainWindow::createMenu()
 
         lightModeAction = new QAction(QIcon(":/Icons/light-Mode.png"),"Light Mode");
 
+        fontColor = new QAction(QIcon(":/Icons/colors.png"),"Font Color");
+
         view->addAction(darkModeAction);
         view->addAction(lightModeAction);
+
+        view->addSeparator();
+
+        view->addAction(fontColor);
 
     }
 
@@ -462,6 +468,14 @@ void MainWindow::lightModeSlot(){
 }
 
 
+void MainWindow::fontColorSlot()
+{
+    QColor color = QColorDialog:: getColor(Qt::white, this , "Colors");
+
+    textarea->setTextColor(color);
+}
+
+
 void MainWindow::alignment(int type)
 {
     QTextCursor cursor = textarea->textCursor();
@@ -541,6 +555,7 @@ MainWindow::~MainWindow()
     delete zoomOutAction;
     delete darkModeAction;
     delete lightModeAction;
+    delete fontColor;
 
     // Delete help actions
     delete viewHelpAction;

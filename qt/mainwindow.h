@@ -11,7 +11,8 @@
 #include <QGuiApplication>
 #include <QSaveFile>
 #include <QPixmap>
-
+#include <QColorDialog>
+#include <QColor>
 
 class MainWindow : public QMainWindow
 {
@@ -85,12 +86,14 @@ private:
     QAction* zoomOutAction;
     QAction* darkModeAction;
     QAction* lightModeAction;
+    QAction* fontColor;
 
     // View slots
     void zoomInSlot();
     void zoomOutSlot();
     void darkModeSlot();
     void lightModeSlot();
+    void fontColorSlot();
 
 
     // Format actions
