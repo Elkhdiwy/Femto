@@ -13,6 +13,8 @@
 #include <QPixmap>
 #include <QColorDialog>
 #include <QColor>
+#include <QFontDialog>
+#include <QFont>
 
 class MainWindow : public QMainWindow
 {
@@ -86,25 +88,29 @@ private:
     QAction* zoomOutAction;
     QAction* darkModeAction;
     QAction* lightModeAction;
-    QAction* fontColor;
-    QAction* fontBgColor;
+
 
     // View slots
     void zoomInSlot();
     void zoomOutSlot();
     void darkModeSlot();
     void lightModeSlot();
-    void fontColorSlot();
-    void fontBgSlot();
+
 
 
     // Format actions
     QAction* rightAlignment;
     QAction* leftAlignment;
     QAction* centralAlignment;
+    QAction* fontColor;
+    QAction* fontBgColor;
+    QAction* fontStyle;
 
     // ~ Format slots
     void alignment(int type);
+    void fontStyleSlot();
+    void fontColorSlot();
+    void fontBgSlot();
 
 
     // Help actions

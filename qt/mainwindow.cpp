@@ -61,14 +61,16 @@ void MainWindow::createConnections()
     connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOutSlot);
     connect(darkModeAction, &QAction::triggered, this, &MainWindow::darkModeSlot);
     connect(lightModeAction, &QAction::triggered, this, &MainWindow::lightModeSlot);
-    connect(fontColor, &QAction::triggered, this, &MainWindow::fontColorSlot);
-    connect(fontBgColor, &QAction::triggered, this, &MainWindow::fontBgSlot);
+
 
 
     // Format signals & slots
     connect(rightAlignment, &QAction::triggered, this,  [this]{alignment(1);  });
     connect(leftAlignment, &QAction::triggered, this,  [this]{ alignment(0); });
     connect(centralAlignment, &QAction::triggered, this, [this]{ alignment(2); });
+    connect(fontStyle, &QAction::triggered, this, &MainWindow::fontStyleSlot);
+    connect(fontColor, &QAction::triggered, this, &MainWindow::fontColorSlot);
+    connect(fontBgColor, &QAction::triggered, this, &MainWindow::fontBgSlot);
 
 
     // Help signals & slots
@@ -180,20 +182,12 @@ void MainWindow::createMenu()
         view->addAction(zoomOutAction);
         view->addSeparator();
 
+        // Modes
         darkModeAction = new QAction(QIcon(":/Icons/dark-Mode.png"),"Dark Mode");
-
         lightModeAction = new QAction(QIcon(":/Icons/light-Mode.png"),"Light Mode");
-
-        fontColor = new QAction(QIcon(":/Icons/font-colors.png"),"Font Color");
-        fontBgColor = new QAction(QIcon(":/Icons/font-bg-color.png"),"Background Color");
 
         view->addAction(darkModeAction);
         view->addAction(lightModeAction);
-
-        view->addSeparator();
-
-        view->addAction(fontColor);
-        view->addAction(fontBgColor);
 
     }
 
@@ -201,13 +195,25 @@ void MainWindow::createMenu()
     // Format button & drop-down list
      format = menuBar()->addMenu("Format");
      {
+         // Alignment
         rightAlignment = new QAction(QIcon(":/Icons/align-right.png"),"Align Right");
         centralAlignment = new QAction(QIcon(":/Icons/align-center.png"),"Align Center");
         leftAlignment = new QAction(QIcon(":/Icons/align-left.png"),"Align Left");
 
+        // Font
+        fontStyle = new QAction(QIcon(":/Icons/fonts.png"),"Fonts");
+        fontColor = new QAction(QIcon(":/Icons/font-colors.png"),"Font Color");
+        fontBgColor = new QAction(QIcon(":/Icons/font-bg-color.png"),"Background Color");
+
         format->addAction(rightAlignment);
         format->addAction(centralAlignment);
         format->addAction(leftAlignment);
+
+        format->addSeparator();
+
+        format->addAction(fontStyle);
+        format->addAction(fontColor);
+        format->addAction(fontBgColor);
      }
 
 
@@ -472,22 +478,6 @@ void MainWindow::lightModeSlot(){
     textarea->setStyleSheet("background-color: #white; color:black; border: 1px solid black;");
 }
 
-
-void MainWindow::fontColorSlot()
-{
-    QColor color = QColorDialog:: getColor(Qt::black, this , "Colors");
-
-    textarea->setTextColor(color);
-}
-
-void MainWindow::fontBgSlot()
-{
-    QColor color = QColorDialog:: getColor(Qt::white, this , "Colors");
-
-    textarea->setTextBackgroundColor(color);
-}
-
-
 void MainWindow::alignment(int type)
 {
     QTextCursor cursor = textarea->textCursor();
@@ -509,6 +499,41 @@ void MainWindow::alignment(int type)
 
     cursor.mergeBlockFormat(textBlockFormat);
     textarea->setTextCursor(cursor);
+}
+
+
+void MainWindow::fontStyleSlot()
+{
+    bool preesOK = false;
+
+    QFont font = QFontDialog:: getFont(&preesOK, this);
+
+    if (preesOK)
+    {
+        textarea->setFont(font);
+    }
+}
+
+
+void MainWindow::fontColorSlot()
+{
+    QColor color = QColorDialog:: getColor(Qt::black, this , "Colors");
+
+    if (color.isValid())
+    {
+        textarea->setTextColor(color);
+    }
+}
+
+
+void MainWindow::fontBgSlot()
+{
+    QColor color = QColorDialog:: getColor(Qt::white, this , "Colors");
+
+    if (color.isValid())
+    {
+        textarea->setTextBackgroundColor(color);
+    }
 }
 
 
@@ -567,6 +592,7 @@ MainWindow::~MainWindow()
     delete zoomOutAction;
     delete darkModeAction;
     delete lightModeAction;
+    delete fontStyle;
     delete fontColor;
     delete fontBgColor;
 
