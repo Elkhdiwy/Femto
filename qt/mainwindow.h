@@ -87,6 +87,7 @@ private:
     QAction* darkModeAction;
     QAction* lightModeAction;
     QAction* fontColor;
+    QAction* fontBgColor;
 
     // View slots
     void zoomInSlot();
@@ -94,6 +95,7 @@ private:
     void darkModeSlot();
     void lightModeSlot();
     void fontColorSlot();
+    void fontBgSlot();
 
 
     // Format actions

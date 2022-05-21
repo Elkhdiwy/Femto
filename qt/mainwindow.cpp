@@ -62,6 +62,8 @@ void MainWindow::createConnections()
     connect(darkModeAction, &QAction::triggered, this, &MainWindow::darkModeSlot);
     connect(lightModeAction, &QAction::triggered, this, &MainWindow::lightModeSlot);
     connect(fontColor, &QAction::triggered, this, &MainWindow::fontColorSlot);
+    connect(fontBgColor, &QAction::triggered, this, &MainWindow::fontBgSlot);
+
 
     // Format signals & slots
     connect(rightAlignment, &QAction::triggered, this,  [this]{alignment(1);  });
@@ -176,12 +178,14 @@ void MainWindow::createMenu()
 
         view->addAction(zoomInAction);
         view->addAction(zoomOutAction);
+        view->addSeparator();
 
         darkModeAction = new QAction(QIcon(":/Icons/dark-Mode.png"),"Dark Mode");
 
         lightModeAction = new QAction(QIcon(":/Icons/light-Mode.png"),"Light Mode");
 
-        fontColor = new QAction(QIcon(":/Icons/colors.png"),"Font Color");
+        fontColor = new QAction(QIcon(":/Icons/font-colors.png"),"Font Color");
+        fontBgColor = new QAction(QIcon(":/Icons/font-bg-color.png"),"Background Color");
 
         view->addAction(darkModeAction);
         view->addAction(lightModeAction);
@@ -189,6 +193,7 @@ void MainWindow::createMenu()
         view->addSeparator();
 
         view->addAction(fontColor);
+        view->addAction(fontBgColor);
 
     }
 
@@ -470,9 +475,16 @@ void MainWindow::lightModeSlot(){
 
 void MainWindow::fontColorSlot()
 {
-    QColor color = QColorDialog:: getColor(Qt::white, this , "Colors");
+    QColor color = QColorDialog:: getColor(Qt::black, this , "Colors");
 
     textarea->setTextColor(color);
+}
+
+void MainWindow::fontBgSlot()
+{
+    QColor color = QColorDialog:: getColor(Qt::white, this , "Colors");
+
+    textarea->setTextBackgroundColor(color);
 }
 
 
@@ -556,6 +568,7 @@ MainWindow::~MainWindow()
     delete darkModeAction;
     delete lightModeAction;
     delete fontColor;
+    delete fontBgColor;
 
     // Delete help actions
     delete viewHelpAction;

@@ -27,7 +27,8 @@
         <file>Icons/light-Mode.png</file>
         <file>Icons/dark-Mode.png</file>
         
-        <file>Icons/colors.png</file>
+        <file>Icons/font-colors.png</file>
+        <file>Icons/font-bg-color.png</file>
 
         <file>Icons/align-right.png</file>
         <file>Icons/align-left.png</file>
