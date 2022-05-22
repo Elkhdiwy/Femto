@@ -36,6 +36,7 @@ namespace Function
     {
         Text.erase(Text.begin() + line - 1);
     }
+    
     vector<int> buildTable(string &w)
     {
         vector<int> t = vector<int>(w.length());
@@ -62,6 +63,7 @@ namespace Function
         }
         return t;
     }
+
     vector<pair<int, int>> KMP(string &s, string &w, vector<pair<int, int>> &ans, int line)
     {
         int m = 0, i = 0;

@@ -11,3 +11,6 @@ Makefile
 # Compiled cpp files
 moc_mainwindow.cpp
 qrc_Icons.cpp
+
+# Stash files
+.qmake.stash

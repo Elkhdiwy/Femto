@@ -11,19 +11,21 @@
 #define ENTER 10
 #define TAB 9
 #define ESC 27
-#define NAME_LIMIT 256
 #define el '\n'
 
 Editor::Editor(string fileName)
 {
     row = 0;
     column = 0;
+    indexFound = 0;
     startIndex = 0;
     savedFlag = false;
     markdownFlag = false;
     visualModeFlag = false;
     isSplashScreen = true;
-    edgeCaseFlag = false;
+    visualEdgeCaseFlag = false;
+    foundFlag = false;
+    yankedFlag = false;
     LINE_NUMBER_SIZE = 3;
     mode = NORMAL;
     visualString = "";
@@ -64,23 +66,23 @@ Editor::Editor(string fileName)
 
 void Editor::undo()
 {
-    if (!history.empty())
+    if (!undoHistory.empty())
     {
         redoHistory.push(buffer->lines);
         redoCursorHistory.push(make_pair(row, column));
-        buffer->lines = history.top();
-        history.pop();
-        row = cursorHistory.top().first;
-        column = cursorHistory.top().second;
-        cursorHistory.pop();
+        buffer->lines = undoHistory.top();
+        undoHistory.pop();
+        row = undoCursorHistory.top().first;
+        column = undoCursorHistory.top().second;
+        undoCursorHistory.pop();
     }
 }
 
 void Editor::updateHistory()
 {
-    history.push(buffer->lines);
+    undoHistory.push(buffer->lines);
     redoHistory = stack<vector<string>>();
-    cursorHistory.push(make_pair(row, column));
+    undoCursorHistory.push(make_pair(row, column));
     redoCursorHistory = stack<pair<int, int>>();
 }
 
@@ -88,8 +90,8 @@ void Editor::redo()
 {
     if (!redoHistory.empty())
     {
-        history.push(buffer->lines);
-        cursorHistory.push(make_pair(row, column));
+        undoHistory.push(buffer->lines);
+        undoCursorHistory.push(make_pair(row, column));
         buffer->lines = redoHistory.top();
         redoHistory.pop();
         row = redoCursorHistory.top().first;
@@ -116,10 +118,19 @@ void Editor::updateStatus()
         status = " ** VISUAL **";
         savedFlag = false;
         break;
+    case FOUND:
+        status = " No matches were found";
+        if (buffer->outKMP.size())
+            status = " Found " + to_string(buffer->outKMP.size()) + " Matches";
+        savedFlag = false;
+        break;
     }
 
     if (savedFlag)
         status = savedStatus;
+
+    if(yankedFlag)
+        status = ' ' + to_string(copiedString.size()) + " chars were yanked"; 
 
     status += "\tROW: " + to_string(row + 1) + "\tCOL: " + to_string(column + 1);
 
@@ -127,6 +138,7 @@ void Editor::updateStatus()
         status += "\t Number of highlighted chars: " + to_string(visualString.size()) + ' ';
     else
         status += "\tNumber of Lines: " + to_string(buffer->lines.size()) + ' ';
+
 }
 
 int Editor::getMax(int a, int b)
@@ -177,7 +189,8 @@ void Editor::handleEvent(int event)
         case ESC:
             mode = NORMAL;
             visualModeFlag = false;
-            edgeCaseFlag = false;
+            visualEdgeCaseFlag = false;
+            yankedFlag = false;
             visualString.erase();
             break;
         case 'x':
@@ -194,6 +207,7 @@ void Editor::handleEvent(int event)
             break;
         case 'y':
             copiedString = visualString;
+            yankedFlag = true;
             visualString.erase();
             break;
         case 'u':
@@ -204,9 +218,47 @@ void Editor::handleEvent(int event)
             break;
         }
         break;
+    case FOUND:
+        switch (event)
+        {
+        case 'n':
+            ++indexFound %= buffer->outKMP.size();
+            row = buffer->outKMP[indexFound].first;
+            column = buffer->outKMP[indexFound].second;
+            break;
+        case 'p':
+            --indexFound %= buffer->outKMP.size();
+            row = buffer->outKMP[indexFound].first;
+            column = buffer->outKMP[indexFound].second;
+            break;
+        case ESC:
+            mode = NORMAL;
+            indexFound = 0;
+            buffer->outKMP.clear();
+            foundFlag = false;
+            break;
+        }
+        break;
     case NORMAL:
         switch (event)
         {
+        case 'F':
+            updateHistory();
+            messagePrompt("Find and Replace: ", text, TEXT_LIMIT);
+            buffer->findReplace(text);
+            column = getMin(buffer->lines[row].length(), column);
+            break;
+        case 'f':
+            messagePrompt("Find: ", text, TEXT_LIMIT);
+            buffer->findAll(text);
+            mode = FOUND;
+            if (buffer->outKMP.size())
+            {
+                foundFlag = true;
+                row = buffer->outKMP[indexFound].first;
+                column = buffer->outKMP[indexFound].second;
+            }
+            break;
         case 'p':
             updateHistory();
             buffer->lines[row].insert(column, copiedString);
@@ -238,6 +290,11 @@ void Editor::handleEvent(int event)
             if (boolPrompt("Are you sure you want to quit?"))
                 mode = QUIT;
             break;
+        case 'g':
+            messagePrompt("Go to line: ", text, TEXT_LIMIT);
+            row = getMin(buffer->lines.size() - 1, stoi(text) - 1);
+            column = 0;
+            break;
         case 'i':
             mode = INSERT;
             break;
@@ -258,7 +315,7 @@ void Editor::handleEvent(int event)
             if (buffer->lines[row].size() > column)
             {
                 updateHistory();
-                buffer->lines[row].erase(buffer->lines[row].begin() + column, buffer->lines[row].begin() + column);
+                buffer->lines[row].erase(column, 1);
                 savedFlag = false;
             }
             break;
@@ -280,7 +337,7 @@ void Editor::handleEvent(int event)
             column = getMin(buffer->lines[row].length(), column);
             break;
         case KEY_NPAGE:
-            if(row == buffer->lines.size() - 1)
+            if (row == buffer->lines.size() - 1)
                 column = buffer->lines[row].length();
             startIndex = getMin(buffer->lines.size() - LINES + 1, startIndex + LINES - 1);
             row = getMin(buffer->lines.size() - 1, row + LINES - 1);
@@ -388,9 +445,9 @@ void Editor::moveLeft()
     }
     else
     {
-        if (!edgeCaseFlag && !visualString.empty())
+        if (!visualEdgeCaseFlag && !visualString.empty())
         {
-            edgeCaseFlag = true;
+            visualEdgeCaseFlag = true;
             handleVisual(KEY_LEFT);
         }
 
@@ -407,6 +464,7 @@ void Editor::handleVisual(int event)
 {
     if (visualModeFlag)
     {
+        yankedFlag = false;
         if (visualString.empty())
             lastKey = event;
 
@@ -430,9 +488,9 @@ void Editor::handleVisual(int event)
                     visualString.erase(visualString.begin());
             }
 
-            if (edgeCaseFlag)
+            if (visualEdgeCaseFlag)
             {
-                edgeCaseFlag = false;
+                visualEdgeCaseFlag = false;
                 column--;
             }
         }
@@ -535,6 +593,12 @@ void Editor::printBuffer()
                 mvprintw(i, LINE_NUMBER_SIZE, buffer->lines[i + startIndex].c_str());
         }
         clrtoeol();
+    }
+    if (foundFlag)
+    {
+        attron(A_REVERSE);
+        mvprintw(buffer->outKMP[indexFound].first, buffer->outKMP[indexFound].second + LINE_NUMBER_SIZE, text);
+        attroff(A_REVERSE);
     }
     move(row - startIndex, column + LINE_NUMBER_SIZE);
 }
@@ -641,7 +705,7 @@ void Editor::printVisual()
         move(row, column - visualString.size() + LINE_NUMBER_SIZE);
     else
     {
-        if (edgeCaseFlag)
+        if (visualEdgeCaseFlag)
             move(row, column + LINE_NUMBER_SIZE);
         else
             move(row, column + LINE_NUMBER_SIZE + 1);
