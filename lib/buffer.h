@@ -16,13 +16,13 @@ public:
 
     void insertLine(string, int);
     void appendLine(string);
-    void removeLine(int);
+    void deleteLine(string);
     void deleteLine(int);
     vector<int> computePrefix(string);
     void KMP(string, string, int);
     void findAll(string);
     void findReplace(string);
-    void tokenize(string, string);
+    bool tokenize(string, string);
     string remTabs(string); // substitute tabs with 4 spaces
 };
 

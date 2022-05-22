@@ -100,6 +100,20 @@ void Editor::redo()
     }
 }
 
+int Editor::size(char *ptr)
+{
+    int offset = 0;
+    int count = 0;
+
+    while (*(ptr + offset) != '\0')
+    {
+        ++count;
+        ++offset;
+    }
+
+    return count;
+}
+
 void Editor::updateStatus()
 {
     switch (mode)
@@ -129,8 +143,8 @@ void Editor::updateStatus()
     if (savedFlag)
         status = savedStatus;
 
-    if(yankedFlag)
-        status = ' ' + to_string(copiedString.size()) + " chars were yanked"; 
+    if (yankedFlag)
+        status = ' ' + to_string(copiedString.size()) + " chars were yanked";
 
     status += "\tROW: " + to_string(row + 1) + "\tCOL: " + to_string(column + 1);
 
@@ -138,7 +152,6 @@ void Editor::updateStatus()
         status += "\t Number of highlighted chars: " + to_string(visualString.size()) + ' ';
     else
         status += "\tNumber of Lines: " + to_string(buffer->lines.size()) + ' ';
-
 }
 
 int Editor::getMax(int a, int b)
@@ -242,6 +255,13 @@ void Editor::handleEvent(int event)
     case NORMAL:
         switch (event)
         {
+        case 'D':
+            updateHistory();
+            messagePrompt("Delete lines: ", text, TEXT_LIMIT);
+            buffer->deleteLine(text);
+            row = getMin(buffer->lines.size() - 1, row);
+            column = getMin(buffer->lines[row].length(), column);
+            break;
         case 'F':
             updateHistory();
             messagePrompt("Find and Replace: ", text, TEXT_LIMIT);
@@ -251,7 +271,8 @@ void Editor::handleEvent(int event)
         case 'f':
             messagePrompt("Find: ", text, TEXT_LIMIT);
             buffer->findAll(text);
-            mode = FOUND;
+            if (size(text))
+                mode = FOUND;
             if (buffer->outKMP.size())
             {
                 foundFlag = true;
@@ -292,8 +313,11 @@ void Editor::handleEvent(int event)
             break;
         case 'g':
             messagePrompt("Go to line: ", text, TEXT_LIMIT);
-            row = getMin(buffer->lines.size() - 1, stoi(text) - 1);
-            column = 0;
+            if (size(text))
+            {
+                row = getMin(buffer->lines.size() - 1, stoi(text) - 1);
+                column = 0;
+            }
             break;
         case 'i':
             mode = INSERT;
@@ -626,25 +650,32 @@ void Editor::selfClosingBrackets(char key)
 void Editor::printSplashScreen()
 {
     attron(A_BOLD);
-    mvprintw(LINES / 2 - 7, COLS / 2 - 5, "femto v0.1");
+    mvprintw(LINES / 2 - 9, COLS / 2 - 5, "femto v0.1");
     attroff(A_BOLD);
-    mvprintw(LINES / 2 - 6, COLS / 2 - 22, "femto is open source and freely distributable");
-    mvprintw(LINES / 2 - 4, COLS / 2 - 7, "i: Insert Mode");
-    mvprintw(LINES / 2 - 3, COLS / 2 - 3, "q: Quit");
-    mvprintw(LINES / 2 - 2, COLS / 2 - 3, "u: Undo");
+    mvprintw(LINES / 2 - 8, COLS / 2 - 22, "femto is open source and freely distributable");
+    mvprintw(LINES / 2 - 7, COLS / 2 - 7, "i: Insert Mode");
+    mvprintw(LINES / 2 - 6, COLS / 2 - 7, "v: Visual Mode");
+    mvprintw(LINES / 2 - 5, COLS / 2 - 8, "u: Undo / r: Redo");
+    mvprintw(LINES / 2 - 4, COLS / 2 - 15, "f: Find All / F: Find & Replace");
+    mvprintw(LINES / 2 - 3, COLS / 2 - 9, "y: Yank / p: Paste");
+    mvprintw(LINES / 2 - 2, COLS / 2 - 6, "g: Go to Line");
     mvprintw(LINES / 2 - 1, COLS / 2 - 3, "s: Save");
     mvprintw(LINES / 2, COLS / 2 - 9, "x: Delete Character");
-    mvprintw(LINES / 2 + 1, COLS / 2 - 7, "d: Delete Line");
+    mvprintw(LINES / 2 + 1, COLS / 2 - 20, "d: Delete Line / D: Delete Multiple Lines");
     mvprintw(LINES / 2 + 2, COLS / 2 - 11, "j: Swap Lines Downwards");
     mvprintw(LINES / 2 + 3, COLS / 2 - 10, "k: Swap Lines Upwards");
     mvprintw(LINES / 2 + 4, COLS / 2 - 10, "Home: Go to the start");
     mvprintw(LINES / 2 + 5, COLS / 2 - 9, "End: Go to the end");
+    mvprintw(LINES / 2 + 6, COLS / 2 - 16, "Page Up: Go to the previous page");
+    mvprintw(LINES / 2 + 7, COLS / 2 - 15, "Page Down: Go to the next page");
+
     refresh();
 }
 void Editor::printStatusBar()
 {
     attron(A_REVERSE);
-    mvprintw(LINES - 1, 0, status.c_str());
+    if (!isSplashScreen)
+        mvprintw(LINES - 1, 0, status.c_str());
     clrtoeol();
     if (getMode() == NORMAL)
         mvprintw(LINES - 1, COLS - 21, " PRESS Q TO QUIT ");

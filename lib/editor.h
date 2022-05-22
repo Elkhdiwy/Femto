@@ -2,6 +2,7 @@
 #define EDITOR_H
 
 #include <ncurses.h>
+#include <cstring>
 #include <stack>
 #include "../lib/buffer.h"
 
@@ -45,6 +46,7 @@ private:
     int getMin(int, int);
     bool validColumn(int);
     bool validRow(int);
+    int size(char *);
 
 public:
     Editor(string);
