@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
             editor.printVisual();
         event = getch();
         editor.handleEvent(event);
+        editor.endLine();
     }
 
     quit();

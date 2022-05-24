@@ -415,8 +415,8 @@ void Editor::handleEvent(int event)
             updateHistory();
             if (column < buffer->lines[row].length())
             {
-                buffer->insertLine(buffer->lines[row].substr(column, buffer->lines[row].length() - column), row + 1);
-                buffer->lines[row].erase(column, buffer->lines[row].length() - column);
+                buffer->insertLine(buffer->lines[row].substr(column), row + 1);
+                buffer->lines[row].erase(column);
             }
             else
                 buffer->insertLine("", row + 1);
@@ -435,8 +435,8 @@ void Editor::handleEvent(int event)
             break;
         default:
             updateHistory();
-            if (column == COLS - LINE_NUMBER_SIZE - 1)
-                handleEvent(ENTER);
+            if (row == buffer->lines.size() - 1 && column == COLS - LINE_NUMBER_SIZE - 2)
+                buffer->appendLine("");
             buffer->lines[row].insert(column, 1, (char)event);
             moveRight();
             selfClosingBrackets((char)event);
@@ -450,7 +450,7 @@ void Editor::handleEvent(int event)
 
 bool Editor::validColumn(int column)
 {
-    return (column + 1 < COLS && column < buffer->lines[row].length());
+    return (column + 1 < COLS - LINE_NUMBER_SIZE - 1 && column < buffer->lines[row].length());
 }
 
 bool Editor::validRow(int row)
@@ -575,6 +575,20 @@ void Editor::moveDown()
             column = buffer->lines[row].length();
 
         move(row, column);
+    }
+}
+
+void Editor::endLine()
+{
+    for (int i = 0; i < buffer->lines.size(); ++i)
+    {
+        if (buffer->lines[i].length() > COLS - LINE_NUMBER_SIZE - 1)
+        {
+            if (i == buffer->lines.size() - 1)
+                buffer->appendLine("");
+            buffer->lines[row + 1].insert(0, buffer->lines[row].substr(COLS - LINE_NUMBER_SIZE - 1));
+            buffer->lines[row].erase(COLS - LINE_NUMBER_SIZE - 1);
+        }
     }
 }
 

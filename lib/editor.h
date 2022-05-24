@@ -58,6 +58,7 @@ public:
     void printSplashScreen();
     void updateStatus();
     void printVisual();
+    void endLine();
 };
 
 #endif
