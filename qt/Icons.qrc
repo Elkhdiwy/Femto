@@ -37,6 +37,8 @@
 
         <file>Icons/help.png</file>
         <file>Icons/about.png</file>
+          
+         <file>Icons/warning.png</file>
        
     </qresource>   
 </RCC>

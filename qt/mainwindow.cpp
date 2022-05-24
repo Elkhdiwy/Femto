@@ -5,7 +5,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setGeometry(500,200,500,500); // The position of the window when it's pop up
     setWindowIcon(QIcon(":/Icons/logo.png"));
 
+    QFont font("Myanmar Text");
+
     textarea = new  QTextEdit();
+
+    textarea->document()->setDefaultFont(font);
+
     setCentralWidget(textarea);
 
     createMenu();
@@ -16,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     createConnections();
 }
+
 
 void MainWindow::setCurrentFile(QString filename)
 {
@@ -314,28 +320,37 @@ bool MainWindow::maybeSaveSlot()
 
 void MainWindow::OpenSlot()
 {
-    if (maybeSaveSlot())
-    {
-        CurrentFilename = QFileDialog::getOpenFileName(this);
+    bool flag = true;
 
-        if (!CurrentFilename.isEmpty())
-        {
-            setCurrentFile(CurrentFilename);
+       if (!textarea->document()->isEmpty())
+             flag = maybeSaveSlot();
 
-            QFile file(CurrentFilename);
+       if (flag)
+       {
+           CurrentFilename = QFileDialog::getOpenFileName(this);
+           QFile file(CurrentFilename);
 
-            if (!file.open(QFile::ReadOnly | QFile::Text))
-            {
-                QMessageBox::warning(this, "Warning", "erorr loading file");
-            }
+           if (!file.open(QFile::ReadOnly | QFile::Text))
+           {
+              //  when press cancel after opening the fileDialog
 
-            QTextStream in(&file);
+               QMessageBox warning;
+               warning.setWindowTitle("Warning");
+               warning.setWindowIcon(QIcon(":/Icons/warning.png"));
+               warning.setText("<p align='center' ;  margin: 2px; >Erorr loading file</p>");
+               warning.setContentsMargins(0,20,0,0);
+               warning.setIconPixmap(QPixmap(":/Icons/warning.png"));
+               warning.show();
+               warning.exec();
 
-            QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-            textarea->document()->setPlainText(in.readAll());
-            QGuiApplication::restoreOverrideCursor();
-        }
-    }
+           }
+
+           QTextStream in(&file);
+
+           QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+           textarea->document()->setPlainText(in.readAll());
+           QGuiApplication::restoreOverrideCursor();
+       }
 }
 
 
@@ -446,15 +461,24 @@ void MainWindow::replaceSlot()
 }
 
 
+int zoomIncrement = 0;
 void MainWindow::zoomInSlot()
 {
-    textarea->zoomIn(5);
+    if ( zoomIncrement < 10 )
+    {
+        zoomIncrement += 2;
+        textarea->zoomIn(zoomIncrement);
+    }
 }
 
 
 void MainWindow::zoomOutSlot()
 {
-    textarea->zoomOut(5);
+    if ( zoomIncrement > 0 )
+    {
+        zoomIncrement -= 2;
+        textarea->zoomOut(zoomIncrement);
+    }
 }
 
 
@@ -539,8 +563,14 @@ void MainWindow::fontBgSlot()
 
 void MainWindow::viewHelpSlot()
 {
-    QMessageBox::about(this, tr("Help Menu"),
-             tr("Bla bla bla Bla bla bla"));
+    QMessageBox help;
+    help.setWindowTitle("Help Menu");
+    help.setWindowIcon(QIcon(":/Icons/help.png"));
+    help.setText("New\t\t^N\nOpen\t\t^O\nSave\t\t^S\nSaveAs\t\t^Shift+S\nExit\t\t^Q\nUndo\t\t^Z\nRedo\t\t^Y\nCopy\t\t^C\nCut\t\t^X\nPaste\t\t^V\nFind\t\t^F\nReplace\t\t^H\nZoom in\t^Shift+I\nZoom out\t^Shift+O");
+    help.setIconPixmap(QPixmap(":/Icons/help.png"));
+
+    help.show();
+    help.exec();
 }
 
 
@@ -549,7 +579,7 @@ void MainWindow::aboutSlot()
     QMessageBox about;
     about.setWindowTitle("About");
     about.setWindowIcon(QIcon(":/Icons/about.png"));
-    about.setText("Femto");
+    about.setText("<b>Femto<b/>");
     about.setInformativeText("Can u go smaller?\n");
     about.setIconPixmap(QPixmap(":/Icons/about.png"));
 
