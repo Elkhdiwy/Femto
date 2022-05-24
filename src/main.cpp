@@ -40,10 +40,8 @@ int main(int argc, char *argv[])
     string fileName = "";
 
     // if a filename is passed
-    if (argc > 1)
-    {
+    if (argc - 1)
         fileName = string(argv[1]);
-    }
 
     init();
 
@@ -57,7 +55,7 @@ int main(int argc, char *argv[])
         editor.updateStatus();
         editor.printStatusBar();
         editor.printBuffer();
-        if(editor.getMode() == VISUAL)
+        if (editor.getMode() == VISUAL)
             editor.printVisual();
         event = getch();
         editor.handleEvent(event);

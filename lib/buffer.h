@@ -24,6 +24,8 @@ public:
     void findReplace(string);
     bool tokenize(string, string);
     string remTabs(string); // substitute tabs with 4 spaces
+    void updateLine(string, int);
+    string getLine(int);
 };
 
 #endif
