@@ -1,21 +1,26 @@
 #include <QMainWindow>
 #include<QPlainTextEdit>
+#include <QCloseEvent>
 #include<QMenuBar>
 #include<QToolBar>
 #include <QStatusBar>
 #include <QAction>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QTextStream>
 #include <QShortcut>
+#include <QMessageBox>
+#include <QTextStream>
 #include <QGuiApplication>
 #include <QSaveFile>
 #include <QPixmap>
+#include <QDialog>
+#include <QFileDialog>
 #include <QColorDialog>
-#include <QColor>
 #include <QFontDialog>
+#include <QColor>
 #include <QFont>
-#include <QCloseEvent>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QVBoxLayout>
+
 
 class MainWindow : public QMainWindow
 {
@@ -58,7 +63,7 @@ private:
     QAction* saveAsAction;
     QAction* exitAction;
 
-    // File slots -
+    // File slots
     void newSlot();
     bool maybeSaveSlot();
     void OpenSlot();
@@ -75,7 +80,6 @@ private:
     QAction* cutAction;
     QAction* pasteAction;
     QAction* findAction;
-    QAction* replaceAction;
 
     // Edit slots
     void undoSlot();
@@ -83,9 +87,13 @@ private:
     void copySlot();
     void cutSlot();
     void pasteSlot();
-    void findSlot();
-    void replaceSlot();
 
+    // Find dialog
+    QLineEdit *lineEdit;
+    QDialog *findDialog;
+
+    void findWindow();
+    void showFindWindow();
 
     // View actions
     QAction* zoomInAction;
@@ -101,7 +109,6 @@ private:
     void lightModeSlot();
 
 
-
     // Format actions
     QAction* rightAlignment;
     QAction* leftAlignment;
@@ -110,7 +117,7 @@ private:
     QAction* fontBgColor;
     QAction* fontStyle;
 
-    // ~ Format slots
+    // Format slots
     void alignment(int type);
     void fontStyleSlot();
     void fontColorSlot();
@@ -121,11 +128,13 @@ private:
     QAction* viewHelpAction;
     QAction* aboutAction;
 
-    // ~ Help slots
+    // Help slots
     void viewHelpSlot();
     void aboutSlot();
 
+
 public:
+
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 };

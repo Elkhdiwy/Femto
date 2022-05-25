@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createToolBar();
     createStatusBar();
 
+    findWindow();
+
     setCurrentFile(QString());
 
     createConnections();
@@ -63,6 +65,7 @@ void MainWindow::createConnections()
     connect(copyAction, &QAction::triggered, this, &MainWindow::copySlot);
     connect(cutAction, &QAction::triggered, this, &MainWindow::cutSlot);
     connect(pasteAction, &QAction::triggered, this, &MainWindow::pasteSlot);
+    connect(findAction, &QAction::triggered, this, &MainWindow::showFindWindow);
 
 
     // View signals & slots
@@ -162,17 +165,12 @@ void MainWindow::createMenu()
 
         edit->addSeparator();
 
+
         // Find
         findAction = new QAction(QIcon(":/Icons/find.png"), "Find");
         findAction->setShortcut(QKeySequence::Find);
 
-        // Replace
-        replaceAction = new QAction(QIcon(":/Icons/find-and-replace.png"), "Replace");
-        replaceAction->setShortcut(QKeySequence::Replace);
-
         edit->addAction(findAction);
-        edit->addAction(replaceAction);
-
     }
 
 
@@ -261,7 +259,7 @@ void MainWindow::createToolBar()
 
      toolbar->addAction(undoAction);
      toolbar->addAction(redoAction);
-     toolbar->addAction(QIcon(":/Icons/find-and-replace"), "Find and replace"); //xxxxxxxx
+     toolbar->addAction(findAction);
 
      toolbar->addSeparator();
 
@@ -469,14 +467,31 @@ void MainWindow::pasteSlot()
 }
 
 
-void MainWindow::findSlot()
+void MainWindow::findWindow()
 {
-    //bla bla
+    findDialog = new QDialog(0,Qt::WindowTitleHint | Qt::WindowCloseButtonHint );
+
+    lineEdit = new QLineEdit(findDialog);
+    QPushButton *btn = new QPushButton(findDialog);
+
+    btn->setText(tr("Find next"));
+
+    // The find method is backward & not case sensitive
+    connect(btn, &QPushButton::clicked, this,[this]{textarea->find(lineEdit->text(), QTextDocument::FindBackward);});
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(lineEdit);
+    layout->addWidget(btn);
+
+    findDialog->setWindowTitle("Find");
+    findDialog->setWindowIcon(QIcon(":/Icons/find.png"));
+    findDialog->setLayout(layout);
 }
 
-void MainWindow::replaceSlot()
+
+void MainWindow::showFindWindow()
 {
-    //bla bla
+    findDialog->show();  // to show the dialog when the find button clicked
 }
 
 
@@ -638,7 +653,6 @@ MainWindow::~MainWindow()
     delete cutAction;
     delete pasteAction;
     delete findAction;
-    delete replaceAction;
 
 
     // Delete view actions
