@@ -592,8 +592,8 @@ void Editor::endLine()
         {
             if (i == buffer->lines.size() - 1)
                 buffer->appendLine("");
-            buffer->lines[row + 1].insert(0, buffer->lines[row].substr(COLS - LINE_NUMBER_SIZE - 1));
-            buffer->lines[row].erase(COLS - LINE_NUMBER_SIZE - 1);
+            buffer->lines[i + 1].insert(0, buffer->lines[i].substr(COLS - LINE_NUMBER_SIZE - 1));
+            buffer->lines[i].erase(COLS - LINE_NUMBER_SIZE - 1);
         }
     }
 }
@@ -700,7 +700,7 @@ void Editor::printStatusBar()
     if (getMode() == NORMAL)
         mvprintw(LINES - 1, COLS - 21, " PRESS Q TO QUIT ");
     else
-        mvprintw(LINES - 1, COLS - 23, " PRESS ESC TO QUIT ");
+        mvprintw(LINES - 1, COLS - 25, " PRESS ESC TO NORMAL ");
 
     clrtoeol();
     attroff(A_REVERSE);

@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
     string fileName = "";
 
     // if a filename is passed
-    if (argc - 1)
-        fileName = string(argv[1]);
+    if (argc - 1) 
+        fileName = (string)argv[1];
 
     init();
 
