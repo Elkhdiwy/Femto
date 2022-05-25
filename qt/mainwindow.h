@@ -15,6 +15,7 @@
 #include <QColor>
 #include <QFontDialog>
 #include <QFont>
+#include <QCloseEvent>
 
 class MainWindow : public QMainWindow
 {
@@ -24,6 +25,8 @@ class MainWindow : public QMainWindow
 private:
 
     QTextEdit* textarea;
+    QFont* font = new QFont("Myanmar Text");
+    int fontSize = 12;
 
     QString CurrentFilename;
     void setCurrentFile(QString filename);
@@ -62,6 +65,7 @@ private:
     void SaveSlot();
     void SaveAsSlot();
     void exitSlot();
+    void closeEvent(QCloseEvent *event);
 
 
     // Edit actions

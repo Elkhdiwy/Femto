@@ -1,15 +1,17 @@
 #include "mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    setGeometry(500,200,500,500); // The position of the window when it's pop up
-    setWindowIcon(QIcon(":/Icons/logo.png"));
 
-    QFont font("Myanmar Text");
+    setGeometry(500,200,500,500);  // The position of the window when it's pop up
+    setWindowIcon(QIcon(":/Icons/logo.png"));
 
     textarea = new  QTextEdit();
 
-    textarea->document()->setDefaultFont(font);
+    textarea->document()->setTextWidth(10);
+    font->setPointSize(12); // default font = 12
+    textarea->document()->setDefaultFont(*font);
 
     setCentralWidget(textarea);
 
@@ -20,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setCurrentFile(QString());
 
     createConnections();
+
 }
 
 
@@ -299,10 +302,17 @@ bool MainWindow::maybeSaveSlot()
     if (!textarea->document()->isModified())
         return false;
 
-    auto warning = QMessageBox::warning(this, "Warning", "The document is modified \n do you want to save ? ",
-        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+     QMessageBox warning;
+     warning.setWindowTitle("Warning");
+     warning.setWindowIcon(QIcon(":/Icons/warning.png"));
+     warning.setText("The document is modified \n do you want to save ?");
+     warning.setIconPixmap(QPixmap(":/Icons/warning.png"));
+     warning.addButton(QMessageBox::Save);
+     warning.addButton(QMessageBox::Discard);
+     warning.addButton(QMessageBox::Cancel);
+     warning.show();
 
-    switch (warning)
+    switch(warning.exec())
     {
         case QMessageBox::Save:
             SaveSlot();
@@ -418,6 +428,15 @@ void MainWindow::exitSlot()
 }
 
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (maybeSaveSlot())
+        event->ignore();
+    else
+        event->accept();
+}
+
+
 void MainWindow::undoSlot()
 {
     textarea->undo();
@@ -461,23 +480,25 @@ void MainWindow::replaceSlot()
 }
 
 
-int zoomIncrement = 0;
+// Font range : [ 12 : 52 ]
 void MainWindow::zoomInSlot()
 {
-    if ( zoomIncrement < 10 )
+    if ( fontSize < 52 )
     {
-        zoomIncrement += 2;
-        textarea->zoomIn(zoomIncrement);
+        fontSize += 4;
+        font->setPointSize(fontSize);
+        textarea->document()->setDefaultFont(*font);
     }
 }
 
 
 void MainWindow::zoomOutSlot()
 {
-    if ( zoomIncrement > 0 )
+    if ( fontSize > 12 )
     {
-        zoomIncrement -= 2;
-        textarea->zoomOut(zoomIncrement);
+        fontSize -= 4;
+        font->setPointSize(fontSize );
+        textarea->document()->setDefaultFont(*font);
     }
 }
 
@@ -590,6 +611,9 @@ void MainWindow::aboutSlot()
 
 MainWindow::~MainWindow()
 {
+    delete textarea;
+    delete font;
+
     // Delete menus
     delete  file;
     delete  edit;
