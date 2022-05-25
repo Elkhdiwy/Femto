@@ -138,3 +138,14 @@ bool Buffer::tokenize(string s, string del = " ")
     inText.push_back(s.substr(start, end - start));
     return (inText.size() > 1);
 }
+
+void Buffer::updateLine(string text, int location)
+{
+    lines[location].erase();
+    lines[location] = move(text);
+}
+
+string Buffer::getLine(int line)
+{
+    return lines[line];
+}

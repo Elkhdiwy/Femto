@@ -478,6 +478,9 @@ void Editor::moveLeft()
         if (visualString.empty() && row)
         {
             row--;
+            if (row < startIndex)
+                startIndex = row;
+
             column = buffer->lines[row].length();
             move(row, column);
         }
@@ -535,6 +538,9 @@ void Editor::moveRight()
         if (visualString.empty() && validRow(row))
         {
             row++;
+            if (row == startIndex + LINES - 1)
+                startIndex++;
+
             column = 0;
             move(row, column);
         }
