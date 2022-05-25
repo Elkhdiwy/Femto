@@ -255,6 +255,19 @@ void Editor::handleEvent(int event)
     case NORMAL:
         switch (event)
         {
+        case 'U':
+            messagePrompt("Update line: ", text, TEXT_LIMIT);
+            if (size(text))
+            {
+                updateHistory();
+                row = getMin(buffer->lines.size(), stoi(text) - 1);
+                if (row == buffer->lines.size())
+                    buffer->appendLine("");
+                buffer->updateLine("", row);
+                column = 0;
+                mode = INSERT;
+            }
+            break;
         case 'D':
             updateHistory();
             messagePrompt("Delete lines: ", text, TEXT_LIMIT);
@@ -679,15 +692,16 @@ void Editor::printSplashScreen()
     mvprintw(LINES / 2 - 4, COLS / 2 - 15, "f: Find All / F: Find & Replace");
     mvprintw(LINES / 2 - 3, COLS / 2 - 9, "y: Yank / p: Paste");
     mvprintw(LINES / 2 - 2, COLS / 2 - 6, "g: Go to Line");
-    mvprintw(LINES / 2 - 1, COLS / 2 - 3, "s: Save");
-    mvprintw(LINES / 2, COLS / 2 - 9, "x: Delete Character");
-    mvprintw(LINES / 2 + 1, COLS / 2 - 20, "d: Delete Line / D: Delete Multiple Lines");
-    mvprintw(LINES / 2 + 2, COLS / 2 - 11, "j: Swap Lines Downwards");
-    mvprintw(LINES / 2 + 3, COLS / 2 - 10, "k: Swap Lines Upwards");
-    mvprintw(LINES / 2 + 4, COLS / 2 - 10, "Home: Go to the start");
-    mvprintw(LINES / 2 + 5, COLS / 2 - 9, "End: Go to the end");
-    mvprintw(LINES / 2 + 6, COLS / 2 - 16, "Page Up: Go to the previous page");
-    mvprintw(LINES / 2 + 7, COLS / 2 - 15, "Page Down: Go to the next page");
+    mvprintw(LINES / 2 - 1, COLS / 2 - 6, "U: Update Line");
+    mvprintw(LINES / 2, COLS / 2 - 3, "s: Save");
+    mvprintw(LINES / 2 + 1, COLS / 2 - 9, "x: Delete Character");
+    mvprintw(LINES / 2 + 2, COLS / 2 - 20, "d: Delete Line / D: Delete Multiple Lines");
+    mvprintw(LINES / 2 + 3, COLS / 2 - 11, "j: Swap Lines Downwards");
+    mvprintw(LINES / 2 + 4, COLS / 2 - 10, "k: Swap Lines Upwards");
+    mvprintw(LINES / 2 + 5, COLS / 2 - 10, "Home: Go to the start");
+    mvprintw(LINES / 2 + 6, COLS / 2 - 9, "End: Go to the end");
+    mvprintw(LINES / 2 + 7, COLS / 2 - 16, "Page Up: Go to the previous page");
+    mvprintw(LINES / 2 + 8, COLS / 2 - 15, "Page Down: Go to the next page");
 
     refresh();
 }
