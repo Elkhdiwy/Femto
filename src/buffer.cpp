@@ -52,7 +52,7 @@ void Buffer::deleteLine(string s)
     inText.clear();
 }
 
-vector<int> Buffer::computePrefix(string pattern)
+vector<int> Buffer::computePrefix(string &pattern)
 {
     vector<int> longestPrefix = vector<int>(pattern.length());
     int i = 2, j = 0;
@@ -79,7 +79,7 @@ vector<int> Buffer::computePrefix(string pattern)
     return longestPrefix;
 }
 
-void Buffer::KMP(string line, string pattern, int row)
+void Buffer::KMP(string &line, string &pattern, int row)
 {
     int m = 0, i = 0;
     vector<int> longestPrefix = computePrefix(pattern);
@@ -145,7 +145,7 @@ void Buffer::updateLine(string text, int location)
     lines[location] = move(text);
 }
 
-string Buffer::getLine(int line)
+string Buffer::getLine(int location)
 {
-    return lines[line];
+    return lines[location];
 }

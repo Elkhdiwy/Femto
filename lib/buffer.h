@@ -18,8 +18,8 @@ public:
     void appendLine(string);
     void deleteLine(string);
     void deleteLine(int);
-    vector<int> computePrefix(string);
-    void KMP(string, string, int);
+    vector<int> computePrefix(string &);
+    void KMP(string &, string &, int);
     void findAll(string);
     void findReplace(string);
     bool tokenize(string, string);
