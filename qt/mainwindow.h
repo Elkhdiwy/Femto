@@ -31,20 +31,21 @@ private:
 
     QTextEdit* textarea;
     QFont* font = new QFont("Myanmar Text");
-    int fontSize = 12;
+    int fontSize = 12; // default font = 12
+
+    void createConnections();
 
     QString CurrentFilename;
     void setCurrentFile(QString filename);
     void documntModified();
 
-    void createConnections();
 
     // Create menus
-    QMenu* file;
-    QMenu* edit;
-    QMenu* format;
-    QMenu* view;
-    QMenu* help;
+    QMenu* fileMenu;
+    QMenu* editMenu;
+    QMenu* viewMenu;
+    QMenu* formatMenu;
+    QMenu* helpMenu;
 
     // create toolbar
     QToolBar* toolbar;
@@ -64,12 +65,12 @@ private:
     QAction* exitAction;
 
     // File slots
-    void newSlot();
-    bool maybeSaveSlot();
-    void OpenSlot();
-    void SaveSlot();
-    void SaveAsSlot();
-    void exitSlot();
+    void New();
+    bool maybeSave();
+    void open();
+    void save();
+    void saveAs();
+    void exit();
     void closeEvent(QCloseEvent *event);
 
 
@@ -82,11 +83,11 @@ private:
     QAction* findAction;
 
     // Edit slots
-    void undoSlot();
-    void redoSlot();
-    void copySlot();
-    void cutSlot();
-    void pasteSlot();
+    void undo();
+    void redo();
+    void copy();
+    void cut();
+    void paste();
 
     // Find dialog
     QLineEdit *lineEdit;
@@ -103,25 +104,25 @@ private:
 
 
     // View slots
-    void zoomInSlot();
-    void zoomOutSlot();
-    void darkModeSlot();
-    void lightModeSlot();
+    void zoomIn();
+    void zoomOut();
+    void darkMode();
+    void lightMode();
 
 
     // Format actions
-    QAction* rightAlignment;
-    QAction* leftAlignment;
-    QAction* centralAlignment;
-    QAction* fontColor;
-    QAction* fontBgColor;
-    QAction* fontStyle;
+    QAction* leftAlignment;    //  0
+    QAction* rightAlignment;   //  1
+    QAction* centralAlignment; //  2
+    QAction* fontColorAction;
+    QAction* fontBgColorAction;
+    QAction* fontStyleAction;
 
     // Format slots
     void alignment(int type);
-    void fontStyleSlot();
-    void fontColorSlot();
-    void fontBgSlot();
+    void fontStyle();
+    void fontColor();
+    void fontBg();
 
 
     // Help actions
@@ -129,8 +130,8 @@ private:
     QAction* aboutAction;
 
     // Help slots
-    void viewHelpSlot();
-    void aboutSlot();
+    void viewHelp();
+    void about();
 
 
 public:

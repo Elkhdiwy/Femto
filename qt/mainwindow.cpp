@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 
@@ -8,95 +7,82 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setWindowIcon(QIcon(":/Icons/logo.png"));
 
     textarea = new  QTextEdit();
-
-    textarea->document()->setTextWidth(10);
     font->setPointSize(12); // default font = 12
     textarea->document()->setDefaultFont(*font);
 
     setCentralWidget(textarea);
-
     createMenu();
     createToolBar();
     createStatusBar();
 
     findWindow();
 
-    setCurrentFile(QString());
+    setCurrentFile(QString(""));
 
     createConnections();
-
 }
 
+void MainWindow::createConnections()
+{
+
+    // Textarea signals & slots
+    connect(textarea->document(), &QTextDocument::contentsChanged, this, &MainWindow::documntModified);
+    connect(textarea,  &QTextEdit::cursorPositionChanged, this, &MainWindow::showCursorPos);
+
+    // File signals & slots
+    connect(newAction, &QAction::triggered, this, &MainWindow::New);
+    connect(openAction, &QAction::triggered, this, &MainWindow::open);
+    connect(saveAction, &QAction::triggered, this, &MainWindow::save);
+    connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveAs);
+    connect(exitAction, &QAction::triggered, this, &MainWindow::exit);
+
+    // Edit signals & slots
+    connect(undoAction, &QAction::triggered, this, &MainWindow::undo);
+    connect(redoAction, &QAction::triggered, this, &MainWindow::redo);
+    connect(copyAction, &QAction::triggered, this, &MainWindow::copy);
+    connect(cutAction, &QAction::triggered, this, &MainWindow::cut);
+    connect(pasteAction, &QAction::triggered, this, &MainWindow::paste);
+    connect(findAction, &QAction::triggered, this, &MainWindow::showFindWindow);
+
+    // View signals & slots
+    connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomIn);
+    connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOut);
+    connect(darkModeAction, &QAction::triggered, this, &MainWindow::darkMode);
+    connect(lightModeAction, &QAction::triggered, this, &MainWindow::lightMode);
+
+    // Format signals & slots
+    connect(leftAlignment, &QAction::triggered, this, [this]{ alignment(0); });
+    connect(rightAlignment, &QAction::triggered, this, [this]{alignment(1);  });
+    connect(centralAlignment, &QAction::triggered, this, [this]{ alignment(2); });
+    connect(fontStyleAction, &QAction::triggered, this, &MainWindow::fontStyle);
+    connect(fontColorAction, &QAction::triggered, this, &MainWindow::fontColor);
+    connect(fontBgColorAction, &QAction::triggered, this, &MainWindow::fontBg);
+
+    // Help signals & slots
+    connect(viewHelpAction, &QAction::triggered, this, &MainWindow::viewHelp);
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+}
 
 void MainWindow::setCurrentFile(QString filename)
 {
     QString showname = filename;
 
     if (filename.isEmpty())
-        showname = "untitled.txt";
+        showname = "untitled";
 
     setWindowFilePath(showname);
 }
-
 
 void MainWindow::documntModified()
 {
     setWindowModified(textarea->document()->isModified());  // To put * when the file is modified
 }
 
-
-void MainWindow::createConnections()
-{
-
-    connect(textarea->document(), &QTextDocument::contentsChanged, this, &MainWindow::documntModified);
-    connect(textarea,  &QTextEdit::cursorPositionChanged, this, &MainWindow::showCursorPos);
-
-    // File signals & slots
-    connect(newAction, &QAction::triggered, this, &MainWindow::newSlot);
-    connect(openAction, &QAction::triggered, this, &MainWindow::OpenSlot);
-    connect(saveAction, &QAction::triggered, this, &MainWindow::SaveSlot);
-    connect(saveAsAction, &QAction::triggered, this, &MainWindow::SaveAsSlot);
-    connect(exitAction, &QAction::triggered, this, &MainWindow::exitSlot);
-
-
-   // Edit signals & slots
-    connect(undoAction, &QAction::triggered, this, &MainWindow::undoSlot);
-    connect(redoAction, &QAction::triggered, this, &MainWindow::redoSlot);
-    connect(copyAction, &QAction::triggered, this, &MainWindow::copySlot);
-    connect(cutAction, &QAction::triggered, this, &MainWindow::cutSlot);
-    connect(pasteAction, &QAction::triggered, this, &MainWindow::pasteSlot);
-    connect(findAction, &QAction::triggered, this, &MainWindow::showFindWindow);
-
-
-    // View signals & slots
-    connect(zoomInAction, &QAction::triggered, this, &MainWindow::zoomInSlot);
-    connect(zoomOutAction, &QAction::triggered, this, &MainWindow::zoomOutSlot);
-    connect(darkModeAction, &QAction::triggered, this, &MainWindow::darkModeSlot);
-    connect(lightModeAction, &QAction::triggered, this, &MainWindow::lightModeSlot);
-
-
-
-    // Format signals & slots
-    connect(rightAlignment, &QAction::triggered, this,  [this]{alignment(1);  });
-    connect(leftAlignment, &QAction::triggered, this,  [this]{ alignment(0); });
-    connect(centralAlignment, &QAction::triggered, this, [this]{ alignment(2); });
-    connect(fontStyle, &QAction::triggered, this, &MainWindow::fontStyleSlot);
-    connect(fontColor, &QAction::triggered, this, &MainWindow::fontColorSlot);
-    connect(fontBgColor, &QAction::triggered, this, &MainWindow::fontBgSlot);
-
-
-    // Help signals & slots
-    connect(viewHelpAction, &QAction::triggered, this, &MainWindow::viewHelpSlot);
-    connect(aboutAction, &QAction::triggered, this, &MainWindow::aboutSlot);
-
-}
-
-
 void MainWindow::createMenu()
 {
 
     // File button & drop-down list
-    file = menuBar()->addMenu("File");
+    fileMenu = menuBar()->addMenu("File");
     {
         // New file
         newAction = new QAction(QIcon(":/Icons/new.png"), "New");
@@ -106,10 +92,10 @@ void MainWindow::createMenu()
         openAction = new QAction(QIcon(":/Icons/open.png"), "Open");
         openAction->setShortcut(QKeySequence::Open);
 
-        file->addAction(newAction);
-        file->addAction(openAction);
+        fileMenu->addAction(newAction);
+        fileMenu->addAction(openAction);
 
-        file->addSeparator();
+        fileMenu->addSeparator();
 
         // Save
         saveAction = new QAction(QIcon(":/Icons/save.png"), "Save");
@@ -119,20 +105,19 @@ void MainWindow::createMenu()
         saveAsAction = new QAction(QIcon(":/Icons/save-as.png"), "SaveAs");
         saveAsAction->setShortcut(tr("Ctrl+Shift+S"));
 
-        file->addAction(saveAction);
-        file->addAction(saveAsAction);
+        fileMenu->addAction(saveAction);
+        fileMenu->addAction(saveAsAction);
 
-        file->addSeparator();
+        fileMenu->addSeparator();
 
         // Exit
         exitAction = new QAction(QIcon(":/Icons/exit.png"), "Exit");
         exitAction->setShortcut(tr("Ctrl+Q"));
-        file->addAction(exitAction);
+        fileMenu->addAction(exitAction);
     }
 
-
     // Edit button & drop-down list
-    edit = menuBar()->addMenu("Edit");
+    editMenu = menuBar()->addMenu("Edit");
     {
         // Undo
         undoAction = new QAction(QIcon(":/Icons/undo.png"), "Undo");
@@ -142,10 +127,10 @@ void MainWindow::createMenu()
         redoAction = new QAction(QIcon(":/Icons/redo.png"), "Redo");
         redoAction->setShortcut(QKeySequence::Redo);
 
-        edit->addAction(undoAction);
-        edit->addAction(redoAction);
+        editMenu->addAction(undoAction);
+        editMenu->addAction(redoAction);
 
-        edit->addSeparator();
+        editMenu->addSeparator();
 
         // Copy
         copyAction = new QAction(QIcon(":/Icons/copy.png"), "Copy");
@@ -159,23 +144,22 @@ void MainWindow::createMenu()
         pasteAction = new QAction(QIcon(":/Icons/paste.png"), "Paste");
         pasteAction->setShortcut(QKeySequence::Paste);
 
-        edit->addAction(copyAction);
-        edit->addAction(cutAction);
-        edit->addAction(pasteAction);
+        editMenu->addAction(copyAction);
+        editMenu->addAction(cutAction);
+        editMenu->addAction(pasteAction);
 
-        edit->addSeparator();
-
+        editMenu->addSeparator();
 
         // Find
         findAction = new QAction(QIcon(":/Icons/find.png"), "Find");
         findAction->setShortcut(QKeySequence::Find);
 
-        edit->addAction(findAction);
+        editMenu->addAction(findAction);
     }
 
 
     // View button & drop-down list
-    view = menuBar()->addMenu("View");
+    viewMenu = menuBar()->addMenu("View");
     {
         // Zoom In
         zoomInAction = new QAction(QIcon(":/Icons/zoom-in.png"), "Zoom In");
@@ -185,96 +169,93 @@ void MainWindow::createMenu()
         zoomOutAction = new QAction(QIcon(":/Icons/zoom-out.png"), "Zoom Out");
         zoomOutAction->setShortcut(tr("Shift+Ctrl+O"));
 
-        view->addAction(zoomInAction);
-        view->addAction(zoomOutAction);
-        view->addSeparator();
+        viewMenu->addAction(zoomInAction);
+        viewMenu->addAction(zoomOutAction);
+        viewMenu->addSeparator();
 
         // Modes
         darkModeAction = new QAction(QIcon(":/Icons/dark-Mode.png"),"Dark Mode");
         lightModeAction = new QAction(QIcon(":/Icons/light-Mode.png"),"Light Mode");
 
-        view->addAction(darkModeAction);
-        view->addAction(lightModeAction);
+        viewMenu->addAction(darkModeAction);
+        viewMenu->addAction(lightModeAction);
 
     }
 
 
     // Format button & drop-down list
-     format = menuBar()->addMenu("Format");
-     {
-         // Alignment
+    formatMenu = menuBar()->addMenu("Format");
+    {
+        // Alignment
         rightAlignment = new QAction(QIcon(":/Icons/align-right.png"),"Align Right");
         centralAlignment = new QAction(QIcon(":/Icons/align-center.png"),"Align Center");
         leftAlignment = new QAction(QIcon(":/Icons/align-left.png"),"Align Left");
 
+        formatMenu->addAction(rightAlignment);
+        formatMenu->addAction(centralAlignment);
+        formatMenu->addAction(leftAlignment);
+
+        formatMenu->addSeparator();
+
         // Font
-        fontStyle = new QAction(QIcon(":/Icons/fonts.png"),"Fonts");
-        fontColor = new QAction(QIcon(":/Icons/font-colors.png"),"Font Color");
-        fontBgColor = new QAction(QIcon(":/Icons/font-bg-color.png"),"Background Color");
+        fontStyleAction = new QAction(QIcon(":/Icons/fonts.png"),"Fonts");
+        fontColorAction = new QAction(QIcon(":/Icons/font-colors.png"),"Font Color");
+        fontBgColorAction = new QAction(QIcon(":/Icons/font-bg-color.png"),"Background Color");
 
-        format->addAction(rightAlignment);
-        format->addAction(centralAlignment);
-        format->addAction(leftAlignment);
-
-        format->addSeparator();
-
-        format->addAction(fontStyle);
-        format->addAction(fontColor);
-        format->addAction(fontBgColor);
-     }
+        formatMenu->addAction(fontStyleAction);
+        formatMenu->addAction(fontColorAction);
+        formatMenu->addAction(fontBgColorAction);
+    }
 
 
     // Help button & drop-down list
-    help = menuBar()->addMenu("Help");
+    helpMenu = menuBar()->addMenu("Help");
     {
         viewHelpAction = new QAction(QIcon(":/Icons/help.png"),"View Help");
         aboutAction = new QAction(QIcon(":/Icons/about.png"),"About");
 
-        help->addAction(viewHelpAction);
-        help->addSeparator();
-        help->addAction(aboutAction);
+        helpMenu->addAction(viewHelpAction);
+        helpMenu->addSeparator();
+        helpMenu->addAction(aboutAction);
     }
 }
-
 
 void MainWindow::createToolBar()
 {
 
-     toolbar =  new QToolBar();
+    toolbar =  new QToolBar();
 
-     toolbar->addAction(newAction);
+    toolbar->addAction(newAction);
 
-     toolbar->addSeparator();
+    toolbar->addSeparator();
 
-     toolbar->addAction(saveAction);
-     toolbar->addAction(saveAction);
+    toolbar->addAction(saveAction);
+    toolbar->addAction(saveAction);
 
-     toolbar->addSeparator();
+    toolbar->addSeparator();
 
-     toolbar->addAction(copyAction);
-     toolbar->addAction(cutAction);
-     toolbar->addAction(pasteAction);
+    toolbar->addAction(copyAction);
+    toolbar->addAction(cutAction);
+    toolbar->addAction(pasteAction);
 
-     toolbar->addSeparator();
+    toolbar->addSeparator();
 
-     toolbar->addAction(undoAction);
-     toolbar->addAction(redoAction);
-     toolbar->addAction(findAction);
+    toolbar->addAction(undoAction);
+    toolbar->addAction(redoAction);
+    toolbar->addAction(findAction);
 
-     toolbar->addSeparator();
+    toolbar->addSeparator();
 
-     toolbar->addAction(zoomInAction);
-     toolbar->addAction(zoomOutAction);
+    toolbar->addAction(zoomInAction);
+    toolbar->addAction(zoomOutAction);
 
-     addToolBar(toolbar);
+    addToolBar(toolbar);
 }
-
 
 void MainWindow::createStatusBar()
 {
     statusBar();
 }
-
 
 void MainWindow::showCursorPos()
 {
@@ -283,90 +264,85 @@ void MainWindow::showCursorPos()
     statusBar()->showMessage(QString("Ln %1, Col %2").arg(line).arg(column));
 }
 
-
-void MainWindow::newSlot()
+void MainWindow::New()
 {
-    if (!maybeSaveSlot())
-      {
-          textarea->clear();
-          setWindowModified(false);
-          setCurrentFile(QString());
-      }
+    if ( maybeSave() == false )
+    {
+        textarea->clear();
+        setWindowModified(false);
+        setCurrentFile(QString(""));
+    }
 }
 
-
-bool MainWindow::maybeSaveSlot()
+bool MainWindow::maybeSave()
 {
     if (!textarea->document()->isModified())
         return false;
 
-     QMessageBox warning;
-     warning.setWindowTitle("Warning");
-     warning.setWindowIcon(QIcon(":/Icons/warning.png"));
-     warning.setText("The document is modified \n do you want to save ?");
-     warning.setIconPixmap(QPixmap(":/Icons/warning.png"));
-     warning.addButton(QMessageBox::Save);
-     warning.addButton(QMessageBox::Discard);
-     warning.addButton(QMessageBox::Cancel);
-     warning.show();
+    QMessageBox warning;
+    warning.setWindowTitle("Warning");
+    warning.setWindowIcon(QIcon(":/Icons/warning.png"));
+    warning.setText("The document is modified \n do you want to save ?");
+    warning.setIconPixmap(QPixmap(":/Icons/warning.png"));
+    warning.addButton(QMessageBox::Save);
+    warning.addButton(QMessageBox::Discard);
+    warning.addButton(QMessageBox::Cancel);
+    warning.show();
 
     switch(warning.exec())
     {
-        case QMessageBox::Save:
-            SaveSlot();
-            break;
-        case QMessageBox::Cancel:
-            return true;
-            break;
-        case QMessageBox::Discard:
-            break;
+    case QMessageBox::Save:
+        save();
+        break;
+    case QMessageBox::Cancel:
+        return true;
+        break;
+    case QMessageBox::Discard:
+        break;
     }
 
     return false;
 }
 
-
-void MainWindow::OpenSlot()
+void MainWindow::open()
 {
     bool flag = true;
 
-       if (!textarea->document()->isEmpty())
-             flag = maybeSaveSlot();
+    if (!textarea->document()->isEmpty())
+        flag = maybeSave();
 
-       if (flag)
-       {
-           CurrentFilename = QFileDialog::getOpenFileName(this);
-           QFile file(CurrentFilename);
+    if (flag)
+    {
+        CurrentFilename = QFileDialog::getOpenFileName(this);
+        QFile file(CurrentFilename);
 
-           if (!file.open(QFile::ReadOnly | QFile::Text))
-           {
-              //  when press cancel after opening the fileDialog
+        if (!file.open(QFile::ReadOnly | QFile::Text))
+        {
+            //  when press cancel after opening the fileDialog
+            QMessageBox warning;
+            warning.setWindowTitle("Warning");
+            warning.setWindowIcon(QIcon(":/Icons/warning.png"));
+            warning.setText("<p align='center' ;  margin: 2px; >Erorr loading file</p>");
+            warning.setContentsMargins(0,20,0,0);
+            warning.setIconPixmap(QPixmap(":/Icons/warning.png"));
+            warning.show();
+            warning.exec();
 
-               QMessageBox warning;
-               warning.setWindowTitle("Warning");
-               warning.setWindowIcon(QIcon(":/Icons/warning.png"));
-               warning.setText("<p align='center' ;  margin: 2px; >Erorr loading file</p>");
-               warning.setContentsMargins(0,20,0,0);
-               warning.setIconPixmap(QPixmap(":/Icons/warning.png"));
-               warning.show();
-               warning.exec();
+        }
 
-           }
+        QTextStream in(&file);
 
-           QTextStream in(&file);
-
-           QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-           textarea->document()->setPlainText(in.readAll());
-           QGuiApplication::restoreOverrideCursor();
-       }
+        QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+        textarea->document()->setPlainText(in.readAll());
+        QGuiApplication::restoreOverrideCursor();
+    }
 }
 
-
-void MainWindow::SaveSlot()
+void MainWindow::save()
 {
     if (CurrentFilename.isEmpty())
     {
-        SaveAsSlot();
+        saveAs();
     }
     else
     {
@@ -392,80 +368,64 @@ void MainWindow::SaveSlot()
 
         QGuiApplication::restoreOverrideCursor();
         setCurrentFile(CurrentFilename);
-        statusBar()->showMessage("File saved", 2000);
+        statusBar()->showMessage("File saved", 2000); // 2000 --> after 2 seconds
     }
 }
 
-
-void MainWindow::SaveAsSlot()
+void MainWindow::saveAs()
 {
     QFileDialog dialog(this);
 
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
 
-    if(dialog.exec() != QDialog::Accepted)
-    {
-        // erorr
-    }
-    else
-    {
-        CurrentFilename = dialog.selectedFiles().first();
-        setCurrentFile(CurrentFilename);
-        SaveSlot();
-    }
+    CurrentFilename = dialog.selectedFiles().first();
+    setCurrentFile(CurrentFilename);
+    save();
 }
 
-
-void MainWindow::exitSlot()
+void MainWindow::exit()
 {
-   if (!maybeSaveSlot())
-     {
+    if (!maybeSave())
+    {
         close();
-     }
+    }
 }
-
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (maybeSaveSlot())
+    if (maybeSave())
         event->ignore();
     else
         event->accept();
 }
 
-
-void MainWindow::undoSlot()
+void MainWindow::undo()
 {
     textarea->undo();
 }
 
-
-void MainWindow::redoSlot()
+void MainWindow::redo()
 {
     textarea->redo();
 }
 
-
-void MainWindow::copySlot()
+void MainWindow::copy()
 {
     textarea->selectAll();
     textarea->copy();
 }
 
-
-void MainWindow::cutSlot()
+void MainWindow::cut()
 {
     textarea->selectAll();
     textarea->cut();
 }
 
-
-void MainWindow::pasteSlot()
+void MainWindow::paste()
 {
-   textarea->paste();
+    textarea->paste();
 }
-
 
 void MainWindow::findWindow()
 {
@@ -488,15 +448,13 @@ void MainWindow::findWindow()
     findDialog->setLayout(layout);
 }
 
-
 void MainWindow::showFindWindow()
 {
     findDialog->show();  // to show the dialog when the find button clicked
 }
 
-
 // Font range : [ 12 : 52 ]
-void MainWindow::zoomInSlot()
+void MainWindow::zoomIn()
 {
     if ( fontSize < 52 )
     {
@@ -506,8 +464,7 @@ void MainWindow::zoomInSlot()
     }
 }
 
-
-void MainWindow::zoomOutSlot()
+void MainWindow::zoomOut()
 {
     if ( fontSize > 12 )
     {
@@ -517,9 +474,8 @@ void MainWindow::zoomOutSlot()
     }
 }
 
-
 bool isDrak = false;
-void MainWindow::darkModeSlot(){
+void MainWindow::darkMode(){
 
     isDrak = true;
 
@@ -528,8 +484,7 @@ void MainWindow::darkModeSlot(){
     textarea->setStyleSheet("background-color: #303030; color:white; border: 1px solid white;");
 }
 
-
-void MainWindow::lightModeSlot(){
+void MainWindow::lightMode(){
 
     isDrak = false;
 
@@ -561,8 +516,7 @@ void MainWindow::alignment(int type)
     textarea->setTextCursor(cursor);
 }
 
-
-void MainWindow::fontStyleSlot()
+void MainWindow::fontStyle()
 {
     bool preesOK = false;
 
@@ -574,8 +528,7 @@ void MainWindow::fontStyleSlot()
     }
 }
 
-
-void MainWindow::fontColorSlot()
+void MainWindow::fontColor()
 {
     QColor color = QColorDialog:: getColor(Qt::black, this , "Colors");
 
@@ -585,8 +538,7 @@ void MainWindow::fontColorSlot()
     }
 }
 
-
-void MainWindow::fontBgSlot()
+void MainWindow::fontBg()
 {
     QColor color = QColorDialog:: getColor(Qt::white, this , "Colors");
 
@@ -596,8 +548,7 @@ void MainWindow::fontBgSlot()
     }
 }
 
-
-void MainWindow::viewHelpSlot()
+void MainWindow::viewHelp()
 {
     QMessageBox help;
     help.setWindowTitle("Help Menu");
@@ -609,8 +560,7 @@ void MainWindow::viewHelpSlot()
     help.exec();
 }
 
-
-void MainWindow::aboutSlot()
+void MainWindow::about()
 {
     QMessageBox about;
     about.setWindowTitle("About");
@@ -623,18 +573,17 @@ void MainWindow::aboutSlot()
     about.exec();
 }
 
-
 MainWindow::~MainWindow()
 {
     delete textarea;
     delete font;
 
     // Delete menus
-    delete  file;
-    delete  edit;
-    delete  format;
-    delete  view;
-    delete  help;
+    delete  fileMenu;
+    delete  editMenu;
+    delete  formatMenu;
+    delete  viewMenu;
+    delete  helpMenu;
 
     // Delete toolbar
     delete toolbar;
@@ -654,15 +603,18 @@ MainWindow::~MainWindow()
     delete pasteAction;
     delete findAction;
 
+    // Find dialog
+    delete  lineEdit;
+    delete findDialog;
 
     // Delete view actions
     delete zoomInAction;
     delete zoomOutAction;
     delete darkModeAction;
     delete lightModeAction;
-    delete fontStyle;
-    delete fontColor;
-    delete fontBgColor;
+    delete fontStyleAction;
+    delete fontColorAction;
+    delete fontBgColorAction;
 
     // Delete help actions
     delete viewHelpAction;
