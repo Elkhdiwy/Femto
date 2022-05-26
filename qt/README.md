@@ -4,11 +4,11 @@ Simple text editor in Qt/C++.
 
 ## Features
 
-- Common editor features such as new, open, save,zoom,cut,Undo, redo,...
+- Common editor features such as new, open, save,zoom,cut,undo, redo,...
 - Multiple font styles,font colors and background colors.
 - Text alignment.
 - Dark and light modes.
-- find backward.
+- Find.
 
 
 ## Screenshots
