@@ -1,3 +1,37 @@
+# Femto-QT
+
+Simple text editor in Qt/C++.
+
+## Features
+
+- Common editor features such as new, open, save,zoom,cut,Undo, redo,...
+- Multiple font styles,font colors and background colors.
+- Text alignment.
+- Dark and light modes.
+- find backward.
+
+
+## Screenshots
+
+
+<table>
+  <tr>
+    <td><img src="imgs/1.png"/></td>
+    <td><img src="imgs/2.png"/></td>
+    <td><img src="imgs/3.png"/></td>
+    <td><img src="imgs/4.png"/></td>
+  </tr>
+  
+  <tr>
+    <td><img src="imgs/5.png"/></td>
+    <td><img src="imgs/6.png"/></td>
+    <td><img src="imgs/7.png"/></td>
+    <td><img src="imgs/8.png"/></td>
+  </tr>
+</table>
+
+------------------------------------------------------------------------------
+
 ## Install Qt Creator
 
 - Install build essential, if you don't already have it installed. This is a package that will allow users to install and use c ++ tools:
@@ -16,12 +50,14 @@
 
    `qmake femto-QT.pro`
 
-- Use `make` to compile the **Makefile**:
+- Use `make` to compile the **Makefile**.
  
-  `make`
-
   As long as there are no errors in the project, this command should create an executable program in the working directory.
 
 - To launch the executable file: 
 
   `./femto-QT`
+  
+--------------------------------------------------------------------
+
+The icons used are from  https://icons8.com/
