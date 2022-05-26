@@ -436,8 +436,8 @@ void MainWindow::findWindow()
 
     btn->setText(tr("Find next"));
 
-    // The find method is backward & not case sensitive
-    connect(btn, &QPushButton::clicked, this,[this]{textarea->find(lineEdit->text(), QTextDocument::FindBackward);});
+    // The find method is case insensitive
+    connect(btn, &QPushButton::clicked, this,[this]{textarea->find(lineEdit->text());});
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(lineEdit);
