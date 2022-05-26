@@ -42,8 +42,6 @@ private:
     void redo();
     void updateHistory();
     void handleVisual(int);
-    int getMax(int, int);
-    int getMin(int, int);
     bool validColumn(int);
     bool validRow(int);
     int size(char *);

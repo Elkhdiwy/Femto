@@ -154,22 +154,6 @@ void Editor::updateStatus()
         status += "\tNumber of Lines: " + to_string(buffer->lines.size()) + ' ';
 }
 
-int Editor::getMax(int a, int b)
-{
-    if (a < b)
-        return b;
-
-    return a;
-}
-
-int Editor::getMin(int a, int b)
-{
-    if (a < b)
-        return a;
-
-    return b;
-}
-
 void Editor::handleEvent(int event)
 {
     if (isSplashScreen)
@@ -247,7 +231,6 @@ void Editor::handleEvent(int event)
         case ESC:
             mode = NORMAL;
             indexFound = 0;
-            buffer->outKMP.clear();
             foundFlag = false;
             break;
         }
@@ -260,7 +243,7 @@ void Editor::handleEvent(int event)
             if (size(text))
             {
                 updateHistory();
-                row = getMin(buffer->lines.size(), stoi(text) - 1);
+                row = min((int)buffer->lines.size(), stoi(text) - 1);
                 if (row == buffer->lines.size())
                     buffer->appendLine("");
                 buffer->updateLine("", row);
@@ -272,14 +255,16 @@ void Editor::handleEvent(int event)
             updateHistory();
             messagePrompt("Delete lines: ", text, TEXT_LIMIT);
             buffer->deleteLine(text);
-            row = getMin(buffer->lines.size() - 1, row);
-            column = getMin(buffer->lines[row].length(), column);
+            if (buffer->lines.empty())
+                buffer->appendLine("");
+            row = min((int)buffer->lines.size() - 1, row);
+            column = min((int)buffer->lines[row].length(), column);
             break;
         case 'F':
             updateHistory();
             messagePrompt("Find and Replace: ", text, TEXT_LIMIT);
             buffer->findReplace(text);
-            column = getMin(buffer->lines[row].length(), column);
+            column = min((int)buffer->lines[row].length(), column);
             break;
         case 'f':
             messagePrompt("Find: ", text, TEXT_LIMIT);
@@ -328,7 +313,7 @@ void Editor::handleEvent(int event)
             messagePrompt("Go to line: ", text, TEXT_LIMIT);
             if (size(text))
             {
-                row = getMin(buffer->lines.size() - 1, stoi(text) - 1);
+                row = min((int)buffer->lines.size() - 1, stoi(text) - 1);
                 column = 0;
             }
             break;
@@ -344,8 +329,8 @@ void Editor::handleEvent(int event)
             buffer->deleteLine(row);
             if (buffer->lines.empty())
                 buffer->appendLine("");
-            row = getMin(buffer->lines.size() - 1, row);
-            column = getMin(buffer->lines[row].length(), column);
+            row = min((int)buffer->lines.size() - 1, row);
+            column = min((int)buffer->lines[row].length(), column);
             savedFlag = false;
             break;
         case 'x':
@@ -363,22 +348,22 @@ void Editor::handleEvent(int event)
             break;
         case KEY_END:
             row = buffer->lines.size() - 1;
-            column = getMax(0, buffer->lines[row].size());
+            column = max(0, (int)buffer->lines[row].size());
             startIndex = row - LINES + 2;
             break;
         case KEY_PPAGE:
             if (!startIndex)
                 column = 0;
-            startIndex = getMax(0, startIndex - LINES + 1);
-            row = getMax(0, row - LINES + 1);
-            column = getMin(buffer->lines[row].length(), column);
+            startIndex = max(0, startIndex - LINES + 1);
+            row = max(0, row - LINES + 1);
+            column = min((int)buffer->lines[row].length(), column);
             break;
         case KEY_NPAGE:
             if (row == buffer->lines.size() - 1)
                 column = buffer->lines[row].length();
-            startIndex = getMin(buffer->lines.size() - LINES + 1, startIndex + LINES - 1);
-            row = getMin(buffer->lines.size() - 1, row + LINES - 1);
-            column = getMin(buffer->lines[row].length(), column);
+            startIndex = min((int)buffer->lines.size() - LINES + 1, startIndex + LINES - 1);
+            row = min((int)buffer->lines.size() - 1, row + LINES - 1);
+            column = min((int)buffer->lines[row].length(), column);
             break;
         case 'u':
             undo();

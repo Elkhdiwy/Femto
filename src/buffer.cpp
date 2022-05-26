@@ -39,63 +39,44 @@ void Buffer::deleteLine(string s)
         return;
     }
 
-    tokenize(s, ",");
+    tokenize(s, ", ");
     for (int i = 0; i < inText.size(); ++i)
     {
         if (stoi(inText[i]) - i <= lines.size())
             lines.erase(lines.begin() + stoi(inText[i]) - i - 1);
     }
 
-    if (lines.empty())
-        appendLine("");
-
     inText.clear();
 }
 
-vector<int> Buffer::computePrefix(string &pattern)
+vector<int> Buffer::computePrefix(string pat)
 {
-    vector<int> longestPrefix = vector<int>(pattern.length());
-    int i = 2, j = 0;
-    longestPrefix[0] = -1;
-    if (pattern.length() > 1)
-        longestPrefix[1] = 0;
-
-    while (i < pattern.length())
-    {
-        if (pattern[i - 1] == pattern[j])
-        {
-            longestPrefix[i] = j + 1;
-            i++;
-            j++;
-        }
-        else if (j > 0)
-            j = longestPrefix[j];
-        else
-        {
-            longestPrefix[i] = 0;
-            i++;
-        }
+    vector<int> F(pat.size());
+    for(int i = 1,k = 0; i < pat.size(); ++i){
+ 
+        while (k > 0 and pat[i] != pat[k])
+            k = F[k - 1];
+ 
+        if(pat[k] == pat[i])
+            F[i] = ++k;
+        else F[i] = k;
     }
-    return longestPrefix;
+    return F;
 }
 
-void Buffer::KMP(string &line, string &pattern, int row)
+void Buffer::KMP(string &s, string &pat, int row)
 {
-    int m = 0, i = 0;
-    vector<int> longestPrefix = computePrefix(pattern);
-    while (m + i < line.length())
-    {
-        if (pattern[i] == line[m + i])
-        {
-            i++;
-            if (i == pattern.length())
-                outKMP.push_back({row, m});
-        }
-        else
-        {
-            m += i - longestPrefix[i];
-            if (i > 0)
-                i = longestPrefix[i];
+    vector<int> F = computePrefix(pat);
+    for(int i = 0,k = 0; i < s.size(); i++){
+        while (k > 0 and pat[k] != s[i])
+            k = F[k - 1];
+ 
+        if(s[i] == pat[k])
+            ++k;
+ 
+        if(k == pat.size()){
+            outKMP.push_back(make_pair(row, i-pat.size()+1));
+            k = F[k - 1];
         }
     }
 }
@@ -103,6 +84,8 @@ void Buffer::findAll(string pattern) // improve request : string automata
 {
     if (!pattern.size())
         return;
+
+    outKMP.clear();
 
     for (int i = 0; i < lines.size(); i++)
         KMP(lines[i], pattern, i);
@@ -113,9 +96,10 @@ void Buffer::findReplace(string pattern) // improve request : string automata
     if (!pattern.size())
         return;
 
-    tokenize(pattern, ",");
+    tokenize(pattern, ", ");
 
     findAll(inText[0]);
+    reverse(outKMP.begin(), outKMP.end());
     for (auto i : outKMP)
     {
         lines[i.first].erase(i.second, inText[0].size());
