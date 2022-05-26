@@ -553,7 +553,7 @@ void MainWindow::viewHelp()
     QMessageBox help;
     help.setWindowTitle("Help Menu");
     help.setWindowIcon(QIcon(":/Icons/help.png"));
-    help.setText("New\t\t^N\nOpen\t\t^O\nSave\t\t^S\nSaveAs\t\t^Shift+S\nExit\t\t^Q\nUndo\t\t^Z\nRedo\t\t^Y\nCopy\t\t^C\nCut\t\t^X\nPaste\t\t^V\nFind\t\t^F\nReplace\t\t^H\nZoom in\t^Shift+I\nZoom out\t^Shift+O");
+    help.setText("New\t\t^N\nOpen\t\t^O\nSave\t\t^S\nSaveAs\t\t^Shift+S\nExit\t\t^Q\nUndo\t\t^Z\nRedo\t\t^Y\nCopy\t\t^C\nCut\t\t^X\nPaste\t\t^V\nFind\t\t^F\nZoom in\t^Shift+I\nZoom out\t^Shift+O");
     help.setIconPixmap(QPixmap(":/Icons/help.png"));
 
     help.show();
