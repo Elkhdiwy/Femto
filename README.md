@@ -4,9 +4,9 @@
 
 You have heard of [micro](https://github.com/zyedidia/micro), [nano](https://savannah.gnu.org/git/?group=nano), and [pico](https://en.wikipedia.org/wiki/Pico_(text_editor)), so now it is time for femto.
 
-femto is a modal terminal-based text editor. It is based on ncurses with vim-like keybindings.
+femto is a lightweight modal terminal-based text editor. It is based on ncurses with vim-like keybindings.
 
-## Features:
+## Features
 - Vim-like keybindings
 - Normal, Visual, and Insert modes
 - Basic Markdown syntax highlighting
@@ -16,11 +16,11 @@ femto is a modal terminal-based text editor. It is based on ncurses with vim-lik
 ## Installation
 
 - The only dependency is ncurses.
- ####  Arch:
+ ####  Arch
    ```shell
    sudo pacman -S ncurses
    ```
- ####   Debian:
+ ####   Debian
    ```shell
    sudo apt-get install libncurses5-dev libncursesw5-dev
    ```
@@ -28,13 +28,14 @@ femto is a modal terminal-based text editor. It is based on ncurses with vim-lik
  ```shell
  git clone https://github.com/Elkhdiwy/Femto.git
  cd Femto
+ mkdir obj
  make
- ./Femto
+ ./femto
  ```
 - Enjoy.
 
 
-## TODO:
+## Todo
 - [ ] cpp syntax highlighting
 - [ ] support regex
 - [ ] string automata
