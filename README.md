@@ -20,6 +20,10 @@ femto is a lightweight modal terminal-based text editor. It is based on ncurses 
    ```shell
    sudo pacman -S ncurses
    ```
+ ####  RHEL/Fedora
+   ```shell
+   sudo dnf install ncurses-devel
+   ```
  ####   Debian
    ```shell
    sudo apt-get install libncurses5-dev libncursesw5-dev
