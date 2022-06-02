@@ -28,8 +28,8 @@ private:
     bool savedFlag, markdownFlag, visualModeFlag, visualEdgeCaseFlag, foundFlag, yankedFlag;
     stack<vector<string>> undoHistory;
     stack<vector<string>> redoHistory;
-    stack<pair<int, int>> undoCursorHistory;
-    stack<pair<int, int>> redoCursorHistory;
+    stack<pair<int, pair<int, int>>> undoCursorHistory;
+    stack<pair<int, pair<int, int>>> redoCursorHistory;
 
     void moveUp();
     void moveDown();

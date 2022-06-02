@@ -69,11 +69,12 @@ void Editor::undo()
     if (!undoHistory.empty())
     {
         redoHistory.push(buffer->lines);
-        redoCursorHistory.push(make_pair(row, column));
+        redoCursorHistory.push(make_pair(startIndex, make_pair(row, column)));
         buffer->lines = undoHistory.top();
         undoHistory.pop();
-        row = undoCursorHistory.top().first;
-        column = undoCursorHistory.top().second;
+        startIndex = undoCursorHistory.top().first;
+        row = undoCursorHistory.top().second.first;
+        column = undoCursorHistory.top().second.second;
         undoCursorHistory.pop();
     }
 }
@@ -82,8 +83,8 @@ void Editor::updateHistory()
 {
     undoHistory.push(buffer->lines);
     redoHistory = stack<vector<string>>();
-    undoCursorHistory.push(make_pair(row, column));
-    redoCursorHistory = stack<pair<int, int>>();
+    undoCursorHistory.push(make_pair(startIndex, make_pair(row, column)));
+    redoCursorHistory = stack<pair<int, pair<int, int>>>();
 }
 
 void Editor::redo()
@@ -91,11 +92,12 @@ void Editor::redo()
     if (!redoHistory.empty())
     {
         undoHistory.push(buffer->lines);
-        undoCursorHistory.push(make_pair(row, column));
+        undoCursorHistory.push(make_pair(startIndex, make_pair(row, column)));
         buffer->lines = redoHistory.top();
         redoHistory.pop();
-        row = redoCursorHistory.top().first;
-        column = redoCursorHistory.top().second;
+        startIndex = redoCursorHistory.top().first;
+        row = redoCursorHistory.top().second.first;
+        column = redoCursorHistory.top().second.second;
         redoCursorHistory.pop();
     }
 }
@@ -349,7 +351,7 @@ void Editor::handleEvent(int event)
         case KEY_END:
             row = buffer->lines.size() - 1;
             column = max(0, (int)buffer->lines[row].size());
-            startIndex = row - LINES + 2;
+            startIndex = max(0, row - LINES + 2);
             break;
         case KEY_PPAGE:
             if (!startIndex)
@@ -361,7 +363,7 @@ void Editor::handleEvent(int event)
         case KEY_NPAGE:
             if (row == buffer->lines.size() - 1)
                 column = buffer->lines[row].length();
-            startIndex = min((int)buffer->lines.size() - LINES + 1, startIndex + LINES - 1);
+            startIndex = min(max(0, (int)buffer->lines.size() - LINES + 1), startIndex + LINES - 1);
             row = min((int)buffer->lines.size() - 1, row + LINES - 1);
             column = min((int)buffer->lines[row].length(), column);
             break;
